@@ -1,0 +1,5 @@
+{
+  "name": "leankoala/leanapibundle",
+  "description": "A small bundle for API request handling in Symfony",
+  "license": "gpl-3.0"
+}
