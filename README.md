@@ -19,7 +19,7 @@ can be processed.
 The LeanApiBundle can be installed via composer.
 
 ```shell script
-# composer require leankoala/leanapibundle
+$ composer require leankoala/leanapibundle
 ```
 
 Afterwards add the bundle in the `AppKernel.php`.
