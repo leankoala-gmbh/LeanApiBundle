@@ -38,7 +38,7 @@ $bundles = [
 
 ```php
 $apiRequest = new ApiRequest(
-    $syfonyRequest,
+    $symfonyRequest,
     $doctrine,
     $schema
 );
