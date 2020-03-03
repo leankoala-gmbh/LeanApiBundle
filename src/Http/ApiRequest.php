@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ApiRequest
 {
+    const HEADER_ACCEPT_LANGUAGE = 'accept-language';
+
     /**
      * The parameter container for all the request payload parameters
      *
@@ -112,5 +114,17 @@ class ApiRequest
     public function getParameters()
     {
         return $this->parameterBag->getParameters();
+    }
+
+    public function getPreferredLanguage($fallbackLanguage = 'en')
+    {
+        $acceptedLanguageString = $this->request->headers->get(self::HEADER_ACCEPT_LANGUAGE);
+        $languageArray = explode(',', $acceptedLanguageString);
+
+        if (count($languageArray) === 0) {
+            return $fallbackLanguage;
+        }
+
+        return $languageArray[0];
     }
 }
