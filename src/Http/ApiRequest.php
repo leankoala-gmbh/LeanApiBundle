@@ -116,6 +116,12 @@ class ApiRequest
         return $this->parameterBag->getParameters();
     }
 
+    /**
+     * Return the preferred user language defined in the Accept-Language header.
+     *
+     * @param string $fallbackLanguage
+     * @return mixed|string
+     */
     public function getPreferredLanguage($fallbackLanguage = 'en')
     {
         $acceptedLanguageString = $this->request->headers->get(self::HEADER_ACCEPT_LANGUAGE);
