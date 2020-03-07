@@ -34,7 +34,8 @@ class ParameterBag implements \Countable
         'integer' => ['integer'],
         'string' => ['string'],
         'boolean' => ['boolean'],
-        'identifier' => ['integer']
+        'identifier' => ['integer'],
+        'list' => ['array']
     ];
 
     /**
@@ -158,6 +159,10 @@ class ParameterBag implements \Countable
     {
         if (!is_array($groups)) {
             throw new BadParameterException('The group rule must be an array.');
+        }
+
+        if (!$this->hasParameter($identifier)) {
+            return [];
         }
 
         $type = gettype($this->getParameter($identifier));
