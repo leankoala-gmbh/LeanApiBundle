@@ -2,6 +2,7 @@
 
 namespace Leankoala\LeanApiBundle\Http;
 
+use Leankoala\LeanApiBundle\Parameter\Exception\BadParameterException;
 use Leankoala\LeanApiBundle\Parameter\ParameterBag;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,7 +93,11 @@ class ApiRequest
      */
     public function getParameter($identifier)
     {
-        return $this->parameterBag->getParameter($identifier);
+        try {
+            return $this->parameterBag->getParameter($identifier);
+        } catch (BadParameterException $exception) {
+            throw new \LeankoalaApi\CoreBundle\Business\Exception\BadParameterException($exception->getMessage());
+        }
     }
 
     /**

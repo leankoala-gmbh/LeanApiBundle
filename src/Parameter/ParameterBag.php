@@ -239,7 +239,7 @@ class ParameterBag implements \Countable
     public function getParameter($identifier)
     {
         if (!$this->hasParameter($identifier)) {
-            throw new \BadMethodCallException('The given parameter (' . $identifier . ') does not exist.');
+            throw new BadParameterException('The given parameter (' . $identifier . ') does not exist.');
         }
 
         return $this->parameters[$identifier];
@@ -259,20 +259,35 @@ class ParameterBag implements \Countable
     /**
      * Create entity class by parameter attributes.
      *
+     * If the parameter is type of "list" an array of entities will be returned.
+     *
      * @param string $parameter
      * @param string $class
      *
-     * @return object
+     * @return object|object[]
      */
     private function getEntityByParameter($parameter, $class)
     {
-        $entity = $this->doctrine->getRepository($class)->find($parameter);
+        if (is_array($parameter)) {
+            $entities = [];
+            foreach ($parameter as $singleParameter) {
+                $entity = $this->doctrine->getRepository($class)->find($singleParameter);
 
-        if (is_null($entity)) {
-            throw new NotFoundException('No entity (' . $class . ') with id ' . $parameter . ' found.');
+                if (is_null($entity)) {
+                    throw new NotFoundException('No entity (' . $class . ') with id ' . $singleParameter . ' found.');
+                }
+
+                $entities[] = $entity;
+            }
+
+            return $entities;
+        } else {
+            $entity = $this->doctrine->getRepository($class)->find($parameter);
+            if (is_null($entity)) {
+                throw new NotFoundException('No entity (' . $class . ') with id ' . $parameter . ' found.');
+            }
+            return $entity;
         }
-
-        return $entity;
     }
 
     /**
