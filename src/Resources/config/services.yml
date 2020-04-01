@@ -1,5 +1,10 @@
 services:
 
+#  Leankoala\LeanApiBundle\ValueResolver\ApiRequestValueResolver:
+#    autowire: true
+#    tags:
+#       - { name: controller.argument_value_resolver, priority: 50 }
+
   leankoala_lean_api.config:
     class: Leankoala\LeanApiBundle\Configuration\ApiConfiguration
     arguments: ['/kapi/']

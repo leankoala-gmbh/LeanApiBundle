@@ -43,3 +43,10 @@ $apiRequest = new ApiRequest(
     $schema
 );
 ```
+
+## Ideas
+The API bundle already does a lot but there are still a lot of things we want it to do additionally. This is a list of ideas:
+
+- Auto-generate markdown from the schema arrays
+- Use `@annotations` to inject the `ApiRequest` object with the correct schema
+- Schema as yml 
