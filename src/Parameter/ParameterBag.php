@@ -120,12 +120,12 @@ class ParameterBag implements \Countable
                 throw new BadParameterException('Required field "' . $identifier . '" is missing.');
             }
 
-            if (array_key_exists(ParameterRule::GROUP, $rules)) {
-                $rules = $this->processGroup($rules[ParameterRule::GROUP], $identifier);
-            }
-
             if (array_key_exists(ParameterRule::DEFAULT, $rules) && !$this->hasParameter($identifier)) {
                 $this->parameters[$identifier] = $rules[ParameterRule::DEFAULT];
+            }
+
+            if (array_key_exists(ParameterRule::GROUP, $rules)) {
+                $rules = $this->processGroup($rules[ParameterRule::GROUP], $identifier);
             }
 
             if (array_key_exists(ParameterRule::TYPE, $rules) && array_key_exists($identifier, $this->parameters)) {
