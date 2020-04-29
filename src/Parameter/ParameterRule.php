@@ -29,6 +29,9 @@ abstract class ParameterRule
 
     const DESCRIPTION = 'description';
 
+    const REQUEST_DESCRIPTION = '_request_description';
+    const REQUEST_PUBLIC = '_request_public';
+
     public static function isValidRule($ruleName)
     {
 

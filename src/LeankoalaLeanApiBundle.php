@@ -34,6 +34,7 @@ class LeankoalaLeanApiBundle extends Bundle
 
             // api annotations
             AnnotationReader::addGlobalIgnoredName('apiParamSchema');
+            AnnotationReader::addGlobalIgnoredName('apiSchema');
         }
     }
 }

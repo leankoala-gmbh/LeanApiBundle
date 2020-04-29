@@ -21,6 +21,8 @@ class ApiRequest
 {
     const HEADER_ACCEPT_LANGUAGE = 'accept-language';
 
+    const ANNOTATION_API_SCHEMA = 'apiSchema';
+
     /**
      * The parameter container for all the request payload parameters
      *

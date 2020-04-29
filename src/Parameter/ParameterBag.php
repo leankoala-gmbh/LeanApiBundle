@@ -82,6 +82,10 @@ class ParameterBag implements \Countable
         $this->doctrine = $doctrine;
         $this->parameters = $parameters;
 
+        if (array_key_exists(ParameterRule::REQUEST_DESCRIPTION, $schema)) {
+            unset($schema[ParameterRule::REQUEST_DESCRIPTION]);
+        }
+
         $this->schema = $schema;
 
         $this->assertSchemaValid();
