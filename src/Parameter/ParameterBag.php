@@ -31,9 +31,9 @@ class ParameterBag implements \Countable
      * @var array
      */
     private $types = [
-        'integer' => ['integer'],
-        'string' => ['string'],
-        'boolean' => ['boolean'],
+        ParameterType::INTEGER => ['integer'],
+        ParameterType::STRING => ['string'],
+        ParameterType::BOOLEAN => ['boolean'],
         'identifier' => ['integer'],
         'list' => ['array']
     ];
