@@ -187,15 +187,10 @@ class ParameterBag implements \Countable
      */
     private function assertCorrectType($value, $type, $identifier)
     {
-        if (!in_array($type, array_keys($this->types))) {
-            throw new BadParameterException('The given type "' . $type . '" is not valid. Try ' . implode(', ', array_keys($this->types)) . '.');
-        }
-
-        $valueType = gettype($value);
-        $typeTypes = $this->types[$type];
-
-        if (!in_array($valueType, $typeTypes)) {
-            throw new BadParameterException('The given parameter "' . $identifier . '" does not match the type. Expected: ' . $type . ', actual: ' . $valueType);
+        try {
+            ParameterType::assertCorrectType($type, $value);
+        } catch (BadParameterException $e) {
+            throw new BadParameterException('Unable to validate "' . $identifier . '". ' . $e->getMessage());
         }
     }
 
