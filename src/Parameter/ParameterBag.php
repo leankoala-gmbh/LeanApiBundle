@@ -5,6 +5,7 @@ namespace Leankoala\LeanApiBundle\Parameter;
 use Leankoala\LeanApiBundle\Parameter\Exception\BadParameterException;
 use Leankoala\LeanApiBundle\Parameter\Exception\NotFoundException;
 use Leankoala\LeanApiBundle\Parameter\Exception\ParameterBagException;
+use Leankoala\LeanApiBundle\Parameter\Exception\ValidationFailedException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class ParameterBag implements \Countable
@@ -22,20 +23,8 @@ class ParameterBag implements \Countable
         ParameterRule::OPTIONS,
         ParameterRule::ENTITY,
         ParameterRule::ALIAS,
-        ParameterRule::GROUP
-    ];
-
-    /**
-     * List of possible types and the corresponding PHP types.
-     *
-     * @var array
-     */
-    private $types = [
-        ParameterType::INTEGER => ['integer'],
-        ParameterType::STRING => ['string'],
-        ParameterType::BOOLEAN => ['boolean'],
-        'identifier' => ['integer'],
-        'list' => ['array']
+        ParameterRule::GROUP,
+        ParameterRule::CONSTRAINTS
     ];
 
     /**
@@ -143,6 +132,10 @@ class ParameterBag implements \Countable
             if (array_key_exists(ParameterRule::ENTITY, $rules) && array_key_exists($identifier, $this->parameters)) {
                 $this->parameters[$identifier] = $this->getEntityByParameter($this->getParameter($identifier), $rules[ParameterRule::ENTITY]);
             }
+
+            if (array_key_exists(ParameterRule::CONSTRAINTS, $rules)) {
+                $this->assertConstraints($rules[ParameterRule::CONSTRAINTS], $identifier, $this->getParameter($identifier));
+            }
         }
     }
 
@@ -191,6 +184,24 @@ class ParameterBag implements \Countable
             ParameterType::assertCorrectType($type, $value);
         } catch (BadParameterException $e) {
             throw new BadParameterException('Unable to validate "' . $identifier . '". ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check if the parameter fulfills the mandatory constraints.
+     *
+     * @param $constraints
+     * @param $identifier
+     * @param $value
+     */
+    private function assertConstraints($constraints, $identifier, $value)
+    {
+        foreach ($constraints as $type => $option) {
+            try {
+                ParameterConstraint::assertConstraint($type, $option, $value);
+            } catch (ValidationFailedException $e) {
+                throw new BadParameterException('Unable to validate API parameter "' . $identifier . '": ' . $e->getMessage());
+            }
         }
     }
 
