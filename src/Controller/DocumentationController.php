@@ -50,7 +50,11 @@ class DocumentationController extends ApiController
             $markdownCreator = new MarkdownCreator($this->get('router'));
             $markdown = $markdownCreator->createByPath($path, $method);
         } catch (\Exception $exception) {
-            return new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
+            if ($this->container->get('kernel')->getEnvironment() == 'dev') {
+                return new JsonResponse(['status' => 'error', 'message' => $exception->getMessage(), 'exception' => $exception->getTrace()]);
+            } else {
+                return new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
+            }
         }
 
         return new Response($markdown);

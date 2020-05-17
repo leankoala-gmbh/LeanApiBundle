@@ -20,6 +20,9 @@ abstract class ParameterConstraint
     const LENGTH_MIN = 'length_min';
     const LENGTH_MAX = 'length_max';
 
+    const NUMBER_GREATER_THAN = 'greater_than';
+    const NUMBER_LESS_THAN = 'less_than';
+
     /**
      * This function throws an ValidationFailedException if the given value does not match the given constraint.
      *
@@ -33,12 +36,14 @@ abstract class ParameterConstraint
     {
         $allowedConstraints = [
             self::LENGTH_MAX,
-            self::LENGTH_MIN
+            self::LENGTH_MIN,
+            self::NUMBER_GREATER_THAN,
+            self::NUMBER_LESS_THAN
         ];
 
         if (!in_array($type, $allowedConstraints)) {
-            throw new BadParameterException('The given type "' . $type . '" is not a valid constraint. ' . '
-                                            Try ' . implode(', ', $allowedConstraints) . '.');
+            throw new BadParameterException('The given type "' . $type . '" is not a valid constraint. '
+                                            . 'Try ' . implode(', ', $allowedConstraints) . '.');
         }
 
         switch ($type) {
@@ -47,6 +52,12 @@ abstract class ParameterConstraint
                 break;
             case self::LENGTH_MAX:
                 self::assertMaxLength($value, $option);
+                break;
+            case self::NUMBER_GREATER_THAN:
+                self::assertGreaterThan($value, $option);
+                break;
+            case self::NUMBER_LESS_THAN:
+                self::assertLessThan($value, $option);
                 break;
         }
     }
@@ -75,5 +86,43 @@ abstract class ParameterConstraint
         if (strlen($value) > $maxLength) {
             throw new ValidationFailedException('the given value must be at most ' . $maxLength . ' characters, given ' . strlen($value) . ' characters.');
         }
+    }
+
+    static private function assertGreaterThan($value, $number)
+    {
+        if ($value <= $number) {
+            throw new ValidationFailedException('the given value must be greater than ' . $number . ', given ' . $value . '.');
+        }
+    }
+
+    static private function assertLessThan($value, $number)
+    {
+        if ($value >= $number) {
+            throw new ValidationFailedException('the given value must be less than ' . $number . ', given ' . $value . '.');
+        }
+    }
+
+    /**
+     * Convert a constraint to markdown.
+     *
+     * @param string $type
+     * @param mixed $option
+     *
+     * @return string
+     */
+    static public function toMarkdown($type, $option)
+    {
+        switch ($type) {
+            case self::LENGTH_MIN:
+                return 'Min length ' . $option;
+            case self::LENGTH_MAX:
+                return 'Max length ' . $option;
+            case self::NUMBER_GREATER_THAN:
+                return 'Greater than ' . $option;
+            case self::NUMBER_LESS_THAN:
+                return 'Less than ' . $option;
+        }
+
+        return '';
     }
 }

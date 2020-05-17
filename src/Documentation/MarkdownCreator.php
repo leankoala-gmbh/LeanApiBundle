@@ -2,6 +2,7 @@
 
 namespace Leankoala\LeanApiBundle\Documentation;
 
+use Leankoala\LeanApiBundle\Parameter\ParameterConstraint;
 use Leankoala\LeanApiBundle\Parameter\ParameterRule;
 
 /**
@@ -61,10 +62,14 @@ class MarkdownCreator extends BaseCreator
     {
         $markdown .= "## Request parameters\n";
 
-        $markdown .= "| Name | Description | Required | Type |\n";
-        $markdown .= "|:-----|:------------|:---------|:-----|\n";
+        $markdown .= "| Name | Description | Required | Type | Constraints | \n";
+        $markdown .= "|:-----|:------------|:---------|:-----|:------------|\n";
 
         foreach ($parameters as $name => $parameter) {
+
+            if (!is_array($parameter)) {
+                throw new \RuntimeException("The given parameter '" . $name . "' with value '" . $parameter . "' must be an array.");
+            }
 
             if (array_key_exists(ParameterRule::DESCRIPTION, $parameter)) {
                 $description = $parameter[ParameterRule::DESCRIPTION];
@@ -88,7 +93,16 @@ class MarkdownCreator extends BaseCreator
                 $type = '(' . implode(' \| ', $parameter[ParameterRule::OPTIONS]) . ')';
             }
 
-            $markdown .= '| ' . $name . ' | ' . $description . ' | ' . $required . ' | ' . $type . ' | ' . "\n";
+            if (array_key_exists(ParameterRule::CONSTRAINTS, $parameter)) {
+                $constraints = '';
+                foreach ($parameter[ParameterRule::CONSTRAINTS] as $constraintType => $option) {
+                    $constraints .= ParameterConstraint::toMarkdown($constraintType, $option) . "<br>";
+                }
+            } else {
+                $constraints = '';
+            }
+
+            $markdown .= '| ' . $name . ' | ' . $description . ' | ' . $required . ' | ' . $type . ' | ' . $constraints . '|' . "\n";
         }
 
         return $markdown;
