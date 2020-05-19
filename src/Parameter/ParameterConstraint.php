@@ -12,16 +12,16 @@ use Leankoala\LeanApiBundle\Parameter\Exception\ValidationFailedException;
  *
  * @author Nils Langner (nils.langner@leankoala.com)
  * @created 2020-05-16
- *
- * @todo the constraints must be part of the generated documentation
  */
 abstract class ParameterConstraint
 {
     const LENGTH_MIN = 'length_min';
     const LENGTH_MAX = 'length_max';
 
-    const NUMBER_GREATER_THAN = 'greater_than';
-    const NUMBER_LESS_THAN = 'less_than';
+    const NUMBER_GREATER_THAN = 'number_greater_than';
+    const NUMBER_LESS_THAN = 'number_less_than';
+
+    const ELEMENTS_MIN = 'element_min';
 
     /**
      * This function throws an ValidationFailedException if the given value does not match the given constraint.
@@ -38,7 +38,8 @@ abstract class ParameterConstraint
             self::LENGTH_MAX,
             self::LENGTH_MIN,
             self::NUMBER_GREATER_THAN,
-            self::NUMBER_LESS_THAN
+            self::NUMBER_LESS_THAN,
+            self::ELEMENTS_MIN
         ];
 
         if (!in_array($type, $allowedConstraints)) {
@@ -58,6 +59,9 @@ abstract class ParameterConstraint
                 break;
             case self::NUMBER_LESS_THAN:
                 self::assertLessThan($value, $option);
+                break;
+            case self::ELEMENTS_MIN:
+                self::assertElementsMin($value, $option);
                 break;
         }
     }
@@ -88,6 +92,12 @@ abstract class ParameterConstraint
         }
     }
 
+    /**
+     * Assert that the given value is greater than a given limit
+     *
+     * @param $value
+     * @param $number
+     */
     static private function assertGreaterThan($value, $number)
     {
         if ($value <= $number) {
@@ -95,10 +105,29 @@ abstract class ParameterConstraint
         }
     }
 
+    /**
+     * Assert that the given value is less than a given limit
+     *
+     * @param $value
+     * @param $number
+     */
     static private function assertLessThan($value, $number)
     {
         if ($value >= $number) {
             throw new ValidationFailedException('the given value must be less than ' . $number . ', given ' . $value . '.');
+        }
+    }
+
+    /**
+     * Assert that at least n elements are in the given list
+     *
+     * @param $value
+     * @param $minElements
+     */
+    static private function assertElementsMin($value, $minElements)
+    {
+        if (count($value) < $minElements) {
+            throw new ValidationFailedException('the given list must contain at least ' . $minElements . ' element(s), given ' . count($value) . '.');
         }
     }
 
@@ -121,6 +150,8 @@ abstract class ParameterConstraint
                 return 'Greater than ' . $option;
             case self::NUMBER_LESS_THAN:
                 return 'Less than ' . $option;
+            case self::ELEMENTS_MIN:
+                return 'element count > ' . $option;
         }
 
         return '';
