@@ -26,6 +26,22 @@ class CorsListener
 {
     private $apiConfiguration;
 
+    private $allowedHeaders = [
+        'accept',
+        'accept-encoding',
+        'accept-language',
+        'access-control-request-headers',
+        'access-control-request-method',
+        'cache-control',
+        'origin',
+        'pragma',
+        'referer',
+        'sec-fetch-dest',
+        'sec-fetch-mode',
+        'sec-fetch-site',
+        'user-agent'
+    ];
+
     /**
      * CorsListener constructor.
      *
@@ -75,8 +91,13 @@ class CorsListener
 
         if ($this->apiConfiguration->isApiRequest($event->getRequest())) {
             $response = $event->getResponse();
+            $headers = 'method';
+            foreach ($this->allowedHeaders as $header) {
+                $headers .= ', ' . $header;
+            }
+            //$response->headers->set('Access-Control-Allow-Headers', '*');
+            $response->headers->set('Access-Control-Allow-Headers', $headers);
             $response->headers->set('Access-Control-Allow-Origin', '*');
-            $response->headers->set('Access-Control-Allow-Headers', '*');
             $response->headers->set('Access-Control-Allow-Methods', '*');
         }
     }
