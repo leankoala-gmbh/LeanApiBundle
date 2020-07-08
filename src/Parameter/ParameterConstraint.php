@@ -151,7 +151,7 @@ abstract class ParameterConstraint
             case self::NUMBER_LESS_THAN:
                 return 'Less than ' . $option;
             case self::ELEMENTS_MIN:
-                return 'element count > ' . $option;
+                return 'element count >= ' . $option;
         }
 
         return '';

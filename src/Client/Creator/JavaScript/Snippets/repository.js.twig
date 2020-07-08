@@ -1,0 +1,48 @@
+/**
+ * This class was created by the LeanApiBundle.
+ *
+ * All changes made in this file will be overwritten by the next create run.
+ *
+ * @created {{ "now" | date ('Y-m-d') | raw }}
+ */
+class {{ repository | capitalize }}Repository {
+
+  constructor(connection) {
+    this._connection = connection
+  }
+
+{% for endpoint in endpoints %}
+  async {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}{{ parameter }}, {% endfor %}args) {
+    const route = {
+      path: '{{ endpoint.path | raw }}',
+      method: '{{ endpoint.method }}',
+      version: 1
+    }
+
+    const argList = Object.assign({ {% for parameter in endpoint.pathParameters %}{{ parameter }}{% if not loop.last %}, {% endif %}{% endfor %} }, args)
+
+    // validate arguments
+    const requiredArguments = [{% for parameter in endpoint.requiredRequestParameters %}'{{ parameter }}'{% if not loop.last %}, {% endif %}{% endfor %}]
+    this._assertValidArguments(requiredArguments, argList)
+
+    return this._connection.send(route, argList)
+  }
+
+{% endfor %}
+  /**
+   * @param requiredArguments
+   * @param actualArguments
+   * @private
+   *
+   * @todo this should be done in a parent class
+   */
+  _assertValidArguments(requiredArguments, actualArguments) {
+    requiredArguments.forEach(function (argument) {
+      if (!actualArguments.hasOwnProperty(argument)) {
+        throw new Error('The mandatory argument ' + argument + ' could not be found in the argument object.')
+      }
+    })
+  }
+}
+
+module.exports = {{ repository | capitalize }}Repository

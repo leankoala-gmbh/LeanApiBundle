@@ -33,4 +33,8 @@ abstract class ParameterRule
 
     const REQUEST_DESCRIPTION = '_request_description';
     const REQUEST_PUBLIC = '_request_public';
+
+    const REQUEST_REPOSITORY = '_request_repository';
+
+    const METHOD_NAME = '_request_method_name';
 }

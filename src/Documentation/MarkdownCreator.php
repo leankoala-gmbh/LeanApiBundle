@@ -4,6 +4,7 @@ namespace Leankoala\LeanApiBundle\Documentation;
 
 use Leankoala\LeanApiBundle\Parameter\ParameterConstraint;
 use Leankoala\LeanApiBundle\Parameter\ParameterRule;
+use Leankoala\LeanApiBundle\Parameter\ParameterType;
 
 /**
  * Class MarkdownCreator
@@ -30,7 +31,9 @@ class MarkdownCreator extends BaseCreator
             unset($schemaArray[ParameterRule::REQUEST_DESCRIPTION]);
         }
 
-        $markdown = $this->withRequestParameters($markdown, $schemaArray);
+        if (count($schemaArray) > 0) {
+            $markdown = $this->withRequestParameters($markdown, $schemaArray);
+        }
 
         return $markdown;
     }
@@ -87,6 +90,10 @@ class MarkdownCreator extends BaseCreator
                 $type = $parameter[ParameterRule::TYPE];
             } else {
                 $type = "mixed";
+            }
+
+            if (array_key_exists(ParameterRule::ENTITY, $parameter)) {
+                $type = ParameterType::INTEGER;
             }
 
             if (array_key_exists(ParameterRule::OPTIONS, $parameter)) {
