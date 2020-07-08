@@ -31,6 +31,8 @@ class Creator
 
     private $removePrefix;
 
+    const PARAM_BUNDLE_NAME = 'bundle_name';
+
     /**
      * @var Router
      */
@@ -98,7 +100,17 @@ class Creator
                             if (array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schema)) {
                                 $repository = $schema[ParameterRule::REQUEST_REPOSITORY];
                             } else {
-                                $repository = 'general';
+                                if (array_key_exists(self::PARAM_BUNDLE_NAME, $schema)) {
+                                    $repository = $schema[self::PARAM_BUNDLE_NAME];
+                                } else {
+                                    $repository = 'general';
+                                }
+                            }
+
+                            if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
+                                if ($schema[ParameterRule::REQUEST_PRIVATE] === true) {
+                                    continue;
+                                }
                             }
                         } catch (\RuntimeException $e) {
                             continue;
@@ -170,6 +182,10 @@ class Creator
         }
 
         $schema = $schemas[$schemaName];
+
+        if (preg_match("^\\\(.*?)Bundle\\\^", $controllerSpecs['controller'], $matches)) {
+            $schema[self::PARAM_BUNDLE_NAME] = strtolower($matches[1]);
+        }
 
         if (array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schemas)) {
             if (!array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schema)) {

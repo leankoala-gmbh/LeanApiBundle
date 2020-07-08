@@ -13,6 +13,7 @@ class DocumentationController extends ApiController
 {
     protected $schemas = [
         'markdown' => [
+            ParameterRule::REQUEST_PRIVATE => true,
             ParameterRule::REQUEST_DESCRIPTION => 'This endpoint creates the API documentation in markdown using the schemas variable.',
             'path' => [
                 ParameterRule::DESCRIPTION => 'The path for the controller and action that the API documentation should be created.',

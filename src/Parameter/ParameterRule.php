@@ -32,7 +32,7 @@ abstract class ParameterRule
     const DESCRIPTION = 'description';
 
     const REQUEST_DESCRIPTION = '_request_description';
-    const REQUEST_PUBLIC = '_request_public';
+    const REQUEST_PRIVATE = '_request_private';
 
     const REQUEST_REPOSITORY = '_request_repository';
 

@@ -75,6 +75,10 @@ class ParameterBag implements \Countable
             unset($schema[ParameterRule::REQUEST_DESCRIPTION]);
         }
 
+        if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
+            unset($schema[ParameterRule::REQUEST_PRIVATE]);
+        }
+
         $this->schema = $schema;
 
         $this->assertSchemaValid();

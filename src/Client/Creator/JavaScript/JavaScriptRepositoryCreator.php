@@ -3,6 +3,7 @@
 namespace Leankoala\LeanApiBundle\Client\Creator\JavaScript;
 
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
+use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
 use Twig\Environment;
 
 class JavaScriptRepositoryCreator implements RepositoryCreator
@@ -25,8 +26,16 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
      */
     public function create($repositoryName, $endpoints)
     {
+        foreach ($endpoints as $endpoint) {
+            $jsDocs[$endpoint->getName()] = $this->getJsDoc($endpoint);
+        }
+
         $classContent = $this->template->render(__DIR__ . '/Snippets/repository.js.twig',
-            ['repository' => $repositoryName, 'endpoints' => $endpoints]);
+            ['repository' => $repositoryName, 'endpoints' => $endpoints, 'jsDocs' => $jsDocs]);
+
+        $classContent = str_replace('{Integer}', '{Number}', $classContent);
+        $classContent = str_replace('{Mixed}', '{*}', $classContent);
+        $classContent = str_replace('{List}', '{Array}', $classContent);
 
         $filename = $this->outputDirectory . ucfirst($repositoryName) . 'Repository.js';
 
@@ -35,5 +44,36 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         return [
             $filename
         ];
+    }
+
+    /**
+     * Generate the js docs for the given endpoint
+     *
+     * @param Endpoint $endpoint
+     * @return string
+     */
+    private function getJsDoc(Endpoint $endpoint)
+    {
+        $jsDoc = "  /**\n";
+
+        if ($endpoint->getDescription()) {
+            $jsDoc .= "   * " . $endpoint->getDescription() . "\n   *\n";
+        }
+
+        foreach ($endpoint->getPathParameters() as $parameter) {
+            $jsDoc .= "   * @param " . $parameter . "\n";
+        }
+
+        $parameters = $endpoint->getParameters();
+        if (count($parameters) > 0) {
+            $jsDoc .= "   * @param {Object} args\n";
+            foreach ($parameters as $parameter) {
+                $jsDoc .= "   * @param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ' . $parameter['description'] . "\n";
+            }
+        }
+
+        $jsDoc .= "   */";
+
+        return $jsDoc;
     }
 }

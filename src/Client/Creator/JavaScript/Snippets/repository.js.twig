@@ -12,6 +12,7 @@ class {{ repository | capitalize }}Repository {
   }
 
 {% for endpoint in endpoints %}
+{{ jsDocs[endpoint.name] | raw }}
   async {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}{{ parameter }}, {% endfor %}args) {
     const route = {
       path: '{{ endpoint.path | raw }}',
@@ -20,16 +21,20 @@ class {{ repository | capitalize }}Repository {
     }
 
     const argList = Object.assign({ {% for parameter in endpoint.pathParameters %}{{ parameter }}{% if not loop.last %}, {% endif %}{% endfor %} }, args)
+{% if endpoint.requiredRequestParameters | length > 0 %}
 
     // validate arguments
     const requiredArguments = [{% for parameter in endpoint.requiredRequestParameters %}'{{ parameter }}'{% if not loop.last %}, {% endif %}{% endfor %}]
     this._assertValidArguments(requiredArguments, argList)
+{% endif %}
 
     return this._connection.send(route, argList)
   }
 
 {% endfor %}
   /**
+   * Throw an exception if a mandatory argument is not set.
+   *
    * @param requiredArguments
    * @param actualArguments
    * @private
