@@ -71,7 +71,7 @@ class Endpoint
         $parameters = [];
 
         foreach ($this->schema as $name => $parameter) {
-            if (is_array($parameter) && array_key_exists(ParameterRule::REQUIRED, $parameter)) {
+            if (is_array($parameter) && array_key_exists(ParameterRule::REQUIRED, $parameter) && $parameter[ParameterRule::REQUIRED]) {
                 $parameters[] = $name;
             }
         }

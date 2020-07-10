@@ -13,4 +13,10 @@ interface RepositoryCreator
      * @return string[]
      */
     public function create($repositoryName, $endpoints);
+
+    /**
+     * @param $repositories
+     * @return mixed
+     */
+    public function finish($repositories);
 }

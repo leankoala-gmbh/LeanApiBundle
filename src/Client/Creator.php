@@ -65,12 +65,15 @@ class Creator
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
         $endpoints = $this->getAllEndpoints($pathPrefix);
 
+
         $files = [];
 
         foreach ($endpoints as $repositoryName => $repositoryEndpoints) {
             /** @var Endpoint[] $repositoryEndpoints */
             $files = array_merge($repositoryCreator->create($repositoryName, $repositoryEndpoints), $files);
         }
+
+        $files = array_merge($files, $repositoryCreator->finish(array_keys($endpoints)));
 
         return $files;
     }
@@ -87,6 +90,8 @@ class Creator
         $collection = $this->router->getRouteCollection();
 
         $endpoints = [];
+
+        $knownEndpoints = [];
 
         foreach ($collection as $name => $route) {
             /** @var Route $route */
@@ -111,6 +116,15 @@ class Creator
                                 if ($schema[ParameterRule::REQUEST_PRIVATE] === true) {
                                     continue;
                                 }
+                            }
+
+                            $identifier = $repository . '::' . $schema[ParameterRule::METHOD_NAME];
+
+                            if (in_array($identifier, $knownEndpoints)) {
+                                echo "  WARNING: Duplicate endpoint " . $identifier . " (path: " . $route->getPath() . ")\n\n";
+                                continue;
+                            } else {
+                                $knownEndpoints[] = $identifier;
                             }
                         } catch (\RuntimeException $e) {
                             continue;
@@ -162,6 +176,7 @@ class Creator
     {
         $reflectionMethod = new \ReflectionMethod($controllerSpecs['controller'], $controllerSpecs['action']);
         $doc = $reflectionMethod->getDocComment();
+
         preg_match('#' . ApiRequest::ANNOTATION_API_SCHEMA . '(.*?)\n#s', $doc, $annotations);
 
         if (count($annotations) == 0) {
@@ -205,8 +220,11 @@ class Creator
         $collection = $this->router->getRouteCollection();
 
         foreach ($collection as $name => $route) {
-            $routePathPattern = '%^' . preg_replace('/{(.*?)}/', '(.*)', $route->getPath()) . '$%';
+            $routePathPattern = '%^' . preg_replace('/\{(.*?)\}/', '[^\/]+', $route->getPath()) . '$%';
+            $routePathPattern = str_replace('/', '\/', $routePathPattern);
+
             if (preg_match($routePathPattern, $path) && in_array($method, $route->getMethods())) {
+
                 $controllerSpec = $route->getDefault('_controller');
                 [$controllerName, $actionName] = explode('::', $controllerSpec);
 

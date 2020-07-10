@@ -16,8 +16,8 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $this->outputDirectory = $outputDirectory;
         $this->template = $template;
 
-        if (!file_exists($this->outputDirectory)) {
-            mkdir($this->outputDirectory, 0777, true);
+        if (!file_exists($this->outputDirectory . 'Entities')) {
+            mkdir($this->outputDirectory . 'Entities', 0777, true);
         }
     }
 
@@ -37,7 +37,24 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $classContent = str_replace('{Mixed}', '{*}', $classContent);
         $classContent = str_replace('{List}', '{Array}', $classContent);
 
-        $filename = $this->outputDirectory . ucfirst($repositoryName) . 'Repository.js';
+        $filename = $this->outputDirectory . 'Entities/' . ucfirst($repositoryName) . 'Repository.js';
+
+        file_put_contents($filename, $classContent);
+
+        return [
+            $filename
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function finish($repositories)
+    {
+        $classContent = $this->template->render(__DIR__ . '/Snippets/collection.js.twig',
+            ['repositories' => $repositories]);
+
+        $filename = $this->outputDirectory . 'RepositoryCollection.js';
 
         file_put_contents($filename, $classContent);
 
@@ -57,7 +74,11 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $jsDoc = "  /**\n";
 
         if ($endpoint->getDescription()) {
-            $jsDoc .= "   * " . $endpoint->getDescription() . "\n   *\n";
+            $jsDoc .= "   * " . $endpoint->getDescription();
+            if (count($endpoint->getPathParameters()) > 0 || count($endpoint->getParameters()) > 0) {
+                $jsDoc .= "\n   *";
+            }
+            $jsDoc .= "\n";
         }
 
         foreach ($endpoint->getPathParameters() as $parameter) {
