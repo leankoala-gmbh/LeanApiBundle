@@ -75,6 +75,8 @@ class Creator
 
         $files = array_merge($files, $repositoryCreator->finish(array_keys($endpoints)));
 
+        sort($files);
+
         return $files;
     }
 

@@ -26,18 +26,27 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
      */
     public function create($repositoryName, $endpoints)
     {
+        $jsDocs = [];
+
         foreach ($endpoints as $endpoint) {
             $jsDocs[$endpoint->getName()] = $this->getJsDoc($endpoint);
         }
 
+        $className = $this->getClassName($repositoryName);
+
         $classContent = $this->template->render(__DIR__ . '/Snippets/repository.js.twig',
-            ['repository' => $repositoryName, 'endpoints' => $endpoints, 'jsDocs' => $jsDocs]);
+            [
+                'repository' => $repositoryName,
+                'endpoints' => $endpoints,
+                'jsDocs' => $jsDocs,
+                'className' => $className
+            ]);
 
         $classContent = str_replace('{Integer}', '{Number}', $classContent);
         $classContent = str_replace('{Mixed}', '{*}', $classContent);
         $classContent = str_replace('{List}', '{Array}', $classContent);
 
-        $filename = $this->outputDirectory . 'Entities/' . ucfirst($repositoryName) . 'Repository.js';
+        $filename = $this->outputDirectory . 'Entities/' . $className . '.js';
 
         file_put_contents($filename, $classContent);
 
@@ -46,13 +55,31 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         ];
     }
 
+    private function getClassName($repository, $withSuffix = true)
+    {
+        // var_dump($repository);
+
+        $class = ucfirst($repository);
+        if ($withSuffix) {
+            $class .= 'Repository';
+        }
+
+        return $class;
+    }
+
     /**
      * @inheritDoc
      */
     public function finish($repositories)
     {
+        $repositoryClasses = [];
+
+        foreach ($repositories as $repository) {
+            $repositoryClasses[] = $this->getClassName($repository, false);
+        }
+
         $classContent = $this->template->render(__DIR__ . '/Snippets/collection.js.twig',
-            ['repositories' => $repositories]);
+            ['repositories' => $repositoryClasses]);
 
         $filename = $this->outputDirectory . 'RepositoryCollection.js';
 
@@ -74,10 +101,13 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $jsDoc = "  /**\n";
 
         if ($endpoint->getDescription()) {
-            $jsDoc .= "   * " . $endpoint->getDescription();
+
+            $jsDoc .= $this->getIntendedDescription($endpoint->getDescription());
+
             if (count($endpoint->getPathParameters()) > 0 || count($endpoint->getParameters()) > 0) {
                 $jsDoc .= "\n   *";
             }
+
             $jsDoc .= "\n";
         }
 
@@ -86,14 +116,37 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         }
 
         $parameters = $endpoint->getParameters();
+        $jsDoc .= "   * @param {Object} args\n";
         if (count($parameters) > 0) {
-            $jsDoc .= "   * @param {Object} args\n";
             foreach ($parameters as $parameter) {
-                $jsDoc .= "   * @param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ' . $parameter['description'] . "\n";
+                $paramType = "@param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ';
+                $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . "\n";
             }
         }
 
         $jsDoc .= "   */";
+
+        return $jsDoc;
+    }
+
+    private function getIntendedDescription($description, $prefix = '   * ', $intend = 0)
+    {
+        $descRows = explode("\n", wordwrap($description, 100 - $intend));
+        $count = 0;
+
+        $jsDoc = '';
+
+        foreach ($descRows as $descRow) {
+            $count++;
+            if ($count === 1) {
+                $jsDoc .= $prefix . $descRow;
+            } else {
+                $jsDoc .= "   * " . str_repeat(" ", max(0, $intend - 4)) . $descRow;
+            }
+            if ($count != count($descRows)) {
+                $jsDoc .= "\n";
+            }
+        }
 
         return $jsDoc;
     }

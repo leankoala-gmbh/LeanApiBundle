@@ -1,4 +1,4 @@
-{% for repository in repositories %}const {{ repository | capitalize }}Repository = require('./Entities/{{ repository | capitalize }}Repository')
+{% for repository in repositories %}const {{ repository }} = require('./Entities/{{ repository }}Repository')
 {% endfor %}
 
 /**
@@ -6,14 +6,14 @@
  *
  * All changes made in this file will be overwritten by the next create run.
  *
- *  @created {{ "now" | date ('Y-m-d') | raw }}
+ * @created {{ "now" | date ('Y-m-d') | raw }}
  */
 class RepositoryCollection {
 
   constructor(connection) {
 
     this._repositories = {}
-    {% for repository in repositories %}this._repositories[ '{{ repository }}' ] = new {{ repository | capitalize }}Repository(connection)
+    {% for repository in repositories %}this._repositories[ '{{ repository | lower }}' ] = new {{ repository }}(connection)
     {% endfor %}
 
   }

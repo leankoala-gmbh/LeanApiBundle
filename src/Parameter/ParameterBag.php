@@ -8,6 +8,14 @@ use Leankoala\LeanApiBundle\Parameter\Exception\ParameterBagException;
 use Leankoala\LeanApiBundle\Parameter\Exception\ValidationFailedException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
+/**
+ * Class ParameterBag
+ *
+ * @package Leankoala\LeanApiBundle\Parameter
+ *
+ * @author Nils Langner (nils.langner@leankoala.com)
+ * created 2020-03-01
+ */
 class ParameterBag implements \Countable
 {
     /**
@@ -77,6 +85,10 @@ class ParameterBag implements \Countable
 
         if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
             unset($schema[ParameterRule::REQUEST_PRIVATE]);
+        }
+
+        if (array_key_exists(ParameterRule::REQUEST_REFRESH_ACCESS, $schema)) {
+            unset($schema[ParameterRule::REQUEST_REFRESH_ACCESS]);
         }
 
         $this->schema = $schema;

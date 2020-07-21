@@ -7,7 +7,7 @@ const Repository = require('../Repository')
  *
  * @created {{ "now" | date ('Y-m-d') | raw }}
  */
-class {{ repository | capitalize }}Repository extends Repository {
+class {{ className }} extends Repository {
 
 {% for endpoint in endpoints %}
 {{ jsDocs[endpoint.name] | raw }}
@@ -19,9 +19,16 @@ class {{ repository | capitalize }}Repository extends Repository {
     this._assertValidArguments(requiredArguments, argList)
 {% endif %}
 
+{% if endpoint.forceAccessRefresh %}
+    const result = await this._connection.send(route, argList)
+    await this._connection.refreshAccessToken(true)
+    return result
+{% else %}
     return this._connection.send(route, argList)
+{% endif %}
   }
+
 {% endfor %}
 }
 
-module.exports = {{ repository | capitalize }}Repository
+module.exports = {{ className }}

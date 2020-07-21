@@ -131,6 +131,20 @@ class Endpoint
     }
 
     /**
+     * Returns true if the usage of this method forces a access token refresh.
+     *
+     * @return bool
+     */
+    public function forceAccessRefresh()
+    {
+        if (array_key_exists(ParameterRule::REQUEST_REFRESH_ACCESS, $this->schema)) {
+            return $this->schema[ParameterRule::REQUEST_REFRESH_ACCESS];
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return array
      */
     public function getSchema(): array
