@@ -134,7 +134,7 @@ class ApiRequest
         $acceptedLanguageString = $this->request->headers->get(self::HEADER_ACCEPT_LANGUAGE);
         $languageArray = explode(',', $acceptedLanguageString);
 
-        if (count($languageArray) === 0) {
+        if (count($languageArray) === 0 || $languageArray[0] === "") {
             return $fallbackLanguage;
         }
 

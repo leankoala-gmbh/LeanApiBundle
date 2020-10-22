@@ -39,11 +39,10 @@ class CorsListener
         'sec-fetch-dest',
         'sec-fetch-mode',
         'sec-fetch-site',
-	'user-agent',
-	'content-type',
-	'Accept-Headers',
-	'Authorization',
-
+        'user-agent',
+        'content-type',
+        'Accept-Headers',
+        'Authorization',
     ];
 
     /**

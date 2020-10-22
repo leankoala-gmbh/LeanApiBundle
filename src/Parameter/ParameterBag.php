@@ -150,7 +150,9 @@ class ParameterBag implements \Countable
             }
 
             if (array_key_exists(ParameterRule::CONSTRAINTS, $rules)) {
-                $this->assertConstraints($rules[ParameterRule::CONSTRAINTS], $identifier, $this->getParameter($identifier));
+                if ($this->hasParameter($identifier)) {
+                    $this->assertConstraints($rules[ParameterRule::CONSTRAINTS], $identifier, $this->getParameter($identifier));
+                }
             }
         }
     }

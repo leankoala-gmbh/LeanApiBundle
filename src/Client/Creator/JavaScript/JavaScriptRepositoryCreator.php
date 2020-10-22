@@ -6,6 +6,14 @@ use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
 use Twig\Environment;
 
+/**
+ * Class JavaScriptRepositoryCreator
+ *
+ * @package Leankoala\LeanApiBundle\Client\Creator\JavaScript
+ *
+ * @author Nils Langner (nils.langner@leankoala.com)
+ * created 2020-07-01
+ */
 class JavaScriptRepositoryCreator implements RepositoryCreator
 {
     private $outputDirectory;
@@ -120,7 +128,8 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         if (count($parameters) > 0) {
             foreach ($parameters as $parameter) {
                 $paramType = "@param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ';
-                $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . "\n";
+                $optional = $this->getOptionString($parameter);
+                $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . $optional . "\n";
             }
         }
 
@@ -129,6 +138,38 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         return $jsDoc;
     }
 
+    private function getOptionString($parameter)
+    {
+        $options = '';
+
+        if (array_key_exists('default', $parameter)) {
+            $default = $parameter['default'];
+            if ($default === true) {
+                $default = 'true';
+            } else if ($default === false) {
+                $default = 'false';
+            }
+            $options = 'default: ' . $default;
+        } else if (!$parameter['required']) {
+            $options = 'optional';
+        }
+
+        if ($options) {
+            $options = ' (' . $options . ')';
+        }
+
+        return $options;
+    }
+
+
+    /**
+     * Return the description with the correct indention
+     *
+     * @param string $description
+     * @param string $prefix
+     * @param int $intend
+     * @return string
+     */
     private function getIntendedDescription($description, $prefix = '   * ', $intend = 0)
     {
         $descRows = explode("\n", wordwrap($description, 100 - $intend));
@@ -141,7 +182,7 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             if ($count === 1) {
                 $jsDoc .= $prefix . $descRow;
             } else {
-                $jsDoc .= "   * " . str_repeat(" ", max(0, $intend - 4)) . $descRow;
+                $jsDoc .= "   * " . str_repeat(" ", max(0, $intend)) . $descRow;
             }
             if ($count != count($descRows)) {
                 $jsDoc .= "\n";

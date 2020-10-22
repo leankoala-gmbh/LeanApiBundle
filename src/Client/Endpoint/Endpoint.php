@@ -120,6 +120,10 @@ class Endpoint
                 $currentParameter['type'] = 'mixed';
             }
 
+            if (array_key_exists(ParameterRule::DEFAULT, $parameter)) {
+                $currentParameter['default'] = $parameter[ParameterRule::DEFAULT];
+            }
+
             if (array_key_exists(ParameterRule::ENTITY, $parameter)) {
                 $currentParameter['type'] = ParameterType::INTEGER;
             }
