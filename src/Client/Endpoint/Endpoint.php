@@ -88,12 +88,32 @@ class Endpoint
         }
     }
 
+    /**
+     * Return the result the API result type.
+     *
+     * @return false|mixed
+     *
+     * @since 2020-11-03
+     */
+    public function getResultType()
+    {
+        if (array_key_exists(ParameterRule::RETURN, $this->schema)) {
+            return $this->schema[ParameterRule::RETURN];
+        } else {
+            return false;
+        }
+    }
+
     public function getParameters()
     {
         $parameters = [];
 
         foreach ($this->schema as $name => $parameter) {
             if (!is_array($parameter)) {
+                continue;
+            }
+
+            if (in_array($name, [ParameterRule::RETURN])) {
                 continue;
             }
 

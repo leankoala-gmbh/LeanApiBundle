@@ -44,7 +44,7 @@ class Creator
      * @param Router $router
      * @param Environment $template
      * @param string $outputDir
-     * @param string $removePrefix
+     * @param string|null $removePrefix
      */
     public function __construct(Router $router, Environment $template, $outputDir, $removePrefix = null)
     {
@@ -64,7 +64,6 @@ class Creator
     {
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
         $endpoints = $this->getAllEndpoints($pathPrefix);
-
 
         $files = [];
 

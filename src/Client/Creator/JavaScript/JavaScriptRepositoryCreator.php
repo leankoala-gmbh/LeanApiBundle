@@ -4,6 +4,7 @@ namespace Leankoala\LeanApiBundle\Client\Creator\JavaScript;
 
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
+use Leankoala\LeanApiBundle\Parameter\ParameterRule;
 use Twig\Environment;
 
 /**
@@ -35,9 +36,11 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
     public function create($repositoryName, $endpoints)
     {
         $jsDocs = [];
+        $typeDefs = "";
 
         foreach ($endpoints as $endpoint) {
             $jsDocs[$endpoint->getName()] = $this->getJsDoc($endpoint);
+            $typeDefs .= $this->getResultTypeDefinitionJsDoc($endpoint);
         }
 
         $className = $this->getClassName($repositoryName);
@@ -47,6 +50,7 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
                 'repository' => $repositoryName,
                 'endpoints' => $endpoints,
                 'jsDocs' => $jsDocs,
+                'typeDefs' => $typeDefs,
                 'className' => $className
             ]);
 
@@ -132,10 +136,56 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
                 $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . $optional . "\n";
             }
         }
+        if ($endpoint->getResultType()) {
+            if (count($parameters) > 0) {
+                $jsDoc .= "   *\n";
+            }
+            $jsDoc .= "   * @return {" . $endpoint->getName() . "Result}\n";
+        }
 
         $jsDoc .= "   */";
 
         return $jsDoc;
+    }
+
+    private function getResultTypeDefinitionJsDoc(Endpoint $endpoint)
+    {
+        if ($endpoint->getResultType()) {
+            $jsDocHeader = "/**\n";
+            $jsDocHeader .= ' * The result type for the ' . $endpoint->getName() . " API request.\n *\n";
+
+            $resultType = $endpoint->getResultType();
+
+            if (is_array($resultType)) {
+                $jsDocHeader .= $this->createTypeDefJsDoc('', $endpoint->getResultType(), $endpoint->getName());
+            } else {
+
+            }
+
+            $jsDocHeader .= " */";
+
+            return $jsDocHeader;
+        } else {
+            return '';
+        }
+    }
+
+    private function createTypeDefJsDoc($name, $resultArray, $prefix)
+    {
+        $typeDef = " * @typedef {Object} " . $prefix . "Result" . ucfirst($name) . "\n";
+
+        foreach ($resultArray as $typeName => $resultElement) {
+            if (!array_key_exists(ParameterRule::DESCRIPTION, $resultElement)) {
+                $typeDef = $this->createTypeDefJsDoc($typeName, $resultElement, $prefix) . $typeDef;
+                $typeDef .= " * @property {" . $prefix . "Result" . ucfirst($typeName) . "} " . $typeName . "\n";
+            } else {
+                $typeDef .= " * @property {" . $resultElement[ParameterRule::TYPE] . "} " . $typeName . " - " . $resultElement[ParameterRule::DESCRIPTION] . "\n";
+            }
+        }
+
+        $typeDef .= " *\n";
+
+        return $typeDef;
     }
 
     private function getOptionString($parameter)
@@ -160,7 +210,6 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
 
         return $options;
     }
-
 
     /**
      * Return the description with the correct indention
