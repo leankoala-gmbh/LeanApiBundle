@@ -63,13 +63,16 @@ class Creator
     public function create($outputLanguage, $pathPrefix)
     {
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
-        $endpoints = $this->getAllEndpoints($pathPrefix);
+
+        $endpointContainer = $this->getAllEndpoints($pathPrefix);
+        $endpoints = $endpointContainer['endpoints'];
+        $constants = $endpointContainer['constants'];
 
         $files = [];
 
         foreach ($endpoints as $repositoryName => $repositoryEndpoints) {
             /** @var Endpoint[] $repositoryEndpoints */
-            $files = array_merge($repositoryCreator->create($repositoryName, $repositoryEndpoints), $files);
+            $files = array_merge($repositoryCreator->create($repositoryName, $repositoryEndpoints, $constants[$repositoryName]), $files);
         }
 
         $files = array_merge($files, $repositoryCreator->finish(array_keys($endpoints)));
@@ -84,7 +87,7 @@ class Creator
      *
      * @param string $pathPrefix
      *
-     * @return Endpoint[]
+     * @return array()
      */
     private function getAllEndpoints($pathPrefix)
     {
@@ -102,7 +105,8 @@ class Creator
                 foreach ($route->getMethods() as $method) {
                     if (strtolower($method) != 'options') {
                         try {
-                            $schema = $this->getControllerSchema($route->getPath(), $method);
+                            $schemaContainer = $this->getControllerSchema($route->getPath(), $method);
+                            $schema = $schemaContainer['schema'];
                             if (array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schema)) {
                                 $repository = $schema[ParameterRule::REQUEST_REPOSITORY];
                             } else {
@@ -136,7 +140,8 @@ class Creator
                             $path = str_replace($this->removePrefix, '', $path);
                         }
 
-                        $endpoints[$repository][] = new Endpoint($method, $path, $schema);
+                        $endpoints['endpoints'][$repository][] = new Endpoint($method, $path, $schema);
+                        $endpoints['constants'][$repository] = $schemaContainer['constants'];
                     }
                 }
             }
@@ -213,7 +218,22 @@ class Creator
             $schema[ParameterRule::METHOD_NAME] = $schemaName;
         }
 
-        return $schema;
+        $constants = $this->getConstants($schemas);
+
+        return [
+            'schema' => $schema,
+            'constants' => $constants
+        ];
+    }
+
+    private function getConstants($schemas)
+    {
+        if (array_key_exists(ParameterRule::REPOSITORY_CONSTANT_FILE, $schemas)) {
+            $oClass = new \ReflectionClass($schemas[ParameterRule::REPOSITORY_CONSTANT_FILE]);
+            return $oClass->getConstants();
+        } else {
+            return [];
+        }
     }
 
     private function getControllerSpecs($path, $method)

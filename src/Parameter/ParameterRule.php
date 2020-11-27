@@ -36,6 +36,8 @@ abstract class ParameterRule
 
     const REQUEST_REPOSITORY = '_request_repository';
 
+    const REPOSITORY_CONSTANT_FILE = '_repository_constant_file';
+
     const METHOD_NAME = '_request_method_name';
 
     const REQUEST_REFRESH_ACCESS = '_request_refresh_access';

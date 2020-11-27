@@ -33,7 +33,7 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
     /**
      * @inheritDoc
      */
-    public function create($repositoryName, $endpoints)
+    public function create($repositoryName, $endpoints, $constants = [])
     {
         $jsDocs = [];
         $typeDefs = "";
@@ -44,6 +44,22 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         }
 
         $className = $this->getClassName($repositoryName);
+
+        $files = [];
+
+        if (count($constants) > 0) {
+
+            $constantContent = $this->template->render(__DIR__ . '/Snippets/constants.js.twig',
+                [
+                    'repository' => $repositoryName,
+                    'constants' => $constants
+                ]);
+
+            $constFilename = $this->outputDirectory . 'Constants/' . ucfirst($repositoryName) . '.js';
+            file_put_contents($constFilename, $constantContent);
+
+            $files[] = $constFilename;
+        }
 
         $classContent = $this->template->render(__DIR__ . '/Snippets/repository.js.twig',
             [
@@ -62,9 +78,9 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
 
         file_put_contents($filename, $classContent);
 
-        return [
-            $filename
-        ];
+        $files[] = $filename;
+
+        return $files;
     }
 
     private function getClassName($repository, $withSuffix = true)
