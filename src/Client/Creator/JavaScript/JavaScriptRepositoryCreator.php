@@ -85,8 +85,6 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
 
     private function getClassName($repository, $withSuffix = true)
     {
-        // var_dump($repository);
-
         $class = ucfirst($repository);
         if ($withSuffix) {
             $class .= 'Repository';

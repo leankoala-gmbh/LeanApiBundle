@@ -106,6 +106,7 @@ class Creator
                     if (strtolower($method) != 'options') {
                         try {
                             $schemaContainer = $this->getControllerSchema($route->getPath(), $method);
+
                             $schema = $schemaContainer['schema'];
                             if (array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schema)) {
                                 $repository = $schema[ParameterRule::REQUEST_REPOSITORY];
@@ -140,8 +141,13 @@ class Creator
                             $path = str_replace($this->removePrefix, '', $path);
                         }
 
+                        if (!array_key_exists('constants', $endpoints)
+                            || !array_key_exists($repository, $endpoints['constants'])) {
+                            $endpoints['constants'][$repository] = [];
+                        }
+
                         $endpoints['endpoints'][$repository][] = new Endpoint($method, $path, $schema);
-                        $endpoints['constants'][$repository] = $schemaContainer['constants'];
+                        $endpoints['constants'][$repository] = array_merge($endpoints['constants'][$repository], $schemaContainer['constants']);
                     }
                 }
             }
@@ -187,7 +193,7 @@ class Creator
 
         if (count($annotations) == 0) {
             throw new \RuntimeException('The given action "' . $controllerSpecs['controller'] . '::' . $controllerSpecs['action']
-                                        . '" does not have a @' . ApiRequest::ANNOTATION_API_SCHEMA . ' annotation.');
+                . '" does not have a @' . ApiRequest::ANNOTATION_API_SCHEMA . ' annotation.');
         }
 
         $schemaName = trim($annotations[1]);
@@ -198,8 +204,8 @@ class Creator
 
         if (!array_key_exists($schemaName, $schemas)) {
             throw new BrokenSchemaException('The action ' . $controllerSpecs['action']
-                                            . ' in controller ' . $controllerSpecs['controller']
-                                            . ' has a schema named ' . $schemaName . ' but it is not defined.');
+                . ' in controller ' . $controllerSpecs['controller']
+                . ' has a schema named ' . $schemaName . ' but it is not defined.');
         }
 
         $schema = $schemas[$schemaName];
