@@ -28,6 +28,10 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         if (!file_exists($this->outputDirectory . 'Entities')) {
             mkdir($this->outputDirectory . 'Entities', 0777, true);
         }
+
+        if (!file_exists($this->outputDirectory . 'Constants')) {
+            mkdir($this->outputDirectory . 'Constants', 0777, true);
+        }
     }
 
     /**
