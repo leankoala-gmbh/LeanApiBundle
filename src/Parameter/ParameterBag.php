@@ -237,7 +237,7 @@ class ParameterBag implements \Countable
     private function assertInOptions($value, $options, $identifier)
     {
         if (!in_array($value, $options)) {
-            throw new BadParameterException('The given parameter "' . $identifier . '" value is not allowed. Allowed values are: ' . implode(', ', $options));
+            throw new BadParameterException('The given parameter "' . $identifier . '" value (' . $value . ') is not allowed. Allowed values are: ' . implode(', ', $options));
         }
     }
 
