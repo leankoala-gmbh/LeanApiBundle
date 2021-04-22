@@ -2,8 +2,8 @@
 
 namespace Leankoala\LeanApiBundle\Auth\Authenticator;
 
+use Leankoala\LeanApiBundle\Auth\Scope\Scope;
 use Leankoala\LeanApiBundle\Entity\UserInterface;
-use LeankoalaApi\AuthBundle\Scope\Scope;
 
 /**
  * Class SimpleTokenAuthenticator
@@ -60,7 +60,7 @@ class SimpleTokenAuthenticator implements Authenticator
     /**
      * @inheritDoc
      */
-    public function wasCalled()
+    public function wasCalled(): bool
     {
         return $this->wasCalled;
     }
@@ -68,7 +68,7 @@ class SimpleTokenAuthenticator implements Authenticator
     /**
      * @inheritDoc
      */
-    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds)
+    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds): string
     {
         return $this->masterToken;
     }

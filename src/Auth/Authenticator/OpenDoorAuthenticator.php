@@ -2,10 +2,8 @@
 
 namespace Leankoala\LeanApiBundle\Auth\Authenticator;
 
-use Koalamon\IncidentDashboardBundle\Entity\User;
+use Leankoala\LeanApiBundle\Auth\Scope\Scope;
 use Leankoala\LeanApiBundle\Entity\UserInterface;
-use LeankoalaApi\AuthBundle\Scope\Scope;
-use LeankoalaApi\CoreBundle\Business\Exception\ForbiddenException;
 
 /**
  * Class OpenDoorAuthenticator

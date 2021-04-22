@@ -2,10 +2,9 @@
 
 namespace Leankoala\LeanApiBundle\Auth\Scope;
 
-use Koalamon\IncidentDashboardBundle\Entity\User;
-use Koalamon\IncidentDashboardBundle\Entity\UserRole;
-use LeankoalaApi\CoreBundle\Business\BaseBusinessHandler;
-use LeankoalaApi\CoreBundle\Business\BusinessHandler;
+use App\Entity\User;
+use Leankoala\LeanApiBundle\Business\ScopeAwareBusinessHandler;
+use Leankoala\LeanApiBundle\Entity\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,6 +24,11 @@ class ScopeHandler
     private $container;
 
     /**
+     * @var ScopeAwareBusinessHandler
+     */
+    private $businessHandlers = [];
+
+    /**
      * ScopeHandler constructor.
      *
      * @param ContainerInterface $container
@@ -42,11 +46,13 @@ class ScopeHandler
      * @param User $user
      * @return Scope
      */
-    public function getScopeByUser(User $user)
+    public function getScopeByUser(UserInterface $user)
     {
         $scope = new Scope();
 
         $scope = $this->getRolesForUser($scope, $user);
+
+        return $scope;
 
         $userRoles = $user->getUserRoles();
 
@@ -64,7 +70,7 @@ class ScopeHandler
      * @param User $user
      * @return Scope
      */
-    private function getRolesForUser(Scope $scope, User $user)
+    private function getRolesForUser(Scope $scope, UserInterface $user)
     {
         foreach ($this->getBusinessHandlers() as $businessHandler) {
             $scope->merge($businessHandler->getUserScope($user));
@@ -78,6 +84,7 @@ class ScopeHandler
      *
      * @param Scope $scope
      * @param UserRole $role
+     *
      * @return Scope
      */
     private function getRolesForUserRole(Scope $scope, UserRole $role)
@@ -92,10 +99,13 @@ class ScopeHandler
     /**
      * Get a list of all Leankoala business handlers
      *
-     * @return BusinessHandler[]
+     * @return ScopeAwareBusinessHandler[]
      */
     private function getBusinessHandlers()
     {
+        return $this->businessHandlers;
+
+        // den teil heben wir uns auf für leankoala
         $businessHandlers = [];
 
         try {
@@ -121,6 +131,11 @@ class ScopeHandler
         }
 
         return $businessHandlers;
+    }
+
+    public function addBusinessHandler(ScopeAwareBusinessHandler $businessHandler)
+    {
+        $this->businessHandlers[] = $businessHandler;
     }
 
     /**

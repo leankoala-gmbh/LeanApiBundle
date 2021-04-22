@@ -2,9 +2,14 @@
 
 namespace Leankoala\LeanApiBundle\Auth\Authenticator;
 
+use Leankoala\LeanApiBundle\Auth\Scope\Scope;
 use Leankoala\LeanApiBundle\Entity\UserInterface;
-use LeankoalaApi\AuthBundle\Scope\Scope;
 
+/**
+ * Interface Authenticator
+ *
+ * @package Leankoala\LeanApiBundle\Auth\Authenticator
+ */
 interface Authenticator
 {
     /**
@@ -14,14 +19,14 @@ interface Authenticator
      * @param array $metaData
      * @return boolean
      */
-    public function isAllowed($action, $metaData = []);
+    public function isAllowed($action, $metaData = []): bool;
 
     /**
      * Check if the authenticator was called at least once
      *
      * @return mixed
      */
-    public function wasCalled();
+    public function wasCalled(): bool;
 
     /**
      * Create a token for the given scope that is valid for a given time
@@ -32,10 +37,12 @@ interface Authenticator
      *
      * @return string
      */
-    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds);
+    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds): string;
 
     /**
+     * Return the scope.
+     *
      * @return Scope
      */
-    public function getScope();
+    public function getScope(): Scope;
 }

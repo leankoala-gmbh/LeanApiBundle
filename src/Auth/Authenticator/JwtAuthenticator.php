@@ -2,15 +2,13 @@
 
 namespace Leankoala\LeanApiBundle\Auth\Authenticator;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Koalamon\IncidentDashboardBundle\Entity\User;
+use Leankoala\LeanApiBundle\Auth\Scope\Scope;
+use Leankoala\LeanApiBundle\Auth\Scope\ScopeHandler;
 use Leankoala\LeanApiBundle\Entity\UserInterface;
-use LeankoalaApi\AuthBundle\Scope\Scope;
-use LeankoalaApi\AuthBundle\Scope\ScopeHandler;
-use LeankoalaApi\CoreBundle\Business\Exception\BadParameterException;
-use LeankoalaApi\CoreBundle\Business\Exception\ForbiddenException;
-use LeankoalaApi\CoreBundle\Business\Exception\UnauthorizedException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -44,7 +42,10 @@ class JwtAuthenticator implements Authenticator
 
     private $doctrine;
 
-    private $scopeHandler;
+    /**
+     * @var ScopeHandler
+     */
+    private ScopeHandler $scopeHandler;
 
     /**
      * JwtAuthenticator constructor.
@@ -54,7 +55,7 @@ class JwtAuthenticator implements Authenticator
      * @param string $secret
      * @param string $algorithm
      */
-    public function __construct(RegistryInterface $doctrine, ScopeHandler $scopeHandler, $secret, $algorithm = 'HS256')
+    public function __construct(RegistryInterface|ManagerRegistry $doctrine, ScopeHandler $scopeHandler, $secret, $algorithm = 'HS256')
     {
         $this->doctrine = $doctrine;
         $this->scopeHandler = $scopeHandler;
@@ -109,7 +110,7 @@ class JwtAuthenticator implements Authenticator
      *
      * @todo this function should use the getScope method
      */
-    public function isAllowed($action = null, $metaData = [])
+    public function isAllowed($action = null, $metaData = []): bool
     {
         $this->wasCalled = true;
 
@@ -125,8 +126,8 @@ class JwtAuthenticator implements Authenticator
             $metaData = [];
         }
 
-        if(!is_array($metaData)) {
-            throw new BadParameterException('When asserting the scope rights the second parameter must be an array of array (action: '.$action.'.');
+        if (!is_array($metaData)) {
+            throw new BadParameterException('When asserting the scope rights the second parameter must be an array of array (action: ' . $action . '.');
         }
 
         if (array_key_exists($action, $this->scopeAccess)) {
@@ -153,10 +154,8 @@ class JwtAuthenticator implements Authenticator
 
     /**
      * @inheritDoc
-     *
-     * @return bool
      */
-    public function wasCalled()
+    public function wasCalled(): bool
     {
         return $this->wasCalled;
     }
@@ -175,7 +174,7 @@ class JwtAuthenticator implements Authenticator
      *
      * @return string
      */
-    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds)
+    public function createToken(UserInterface $user, Scope $scope, $timeToLiveInSeconds): string
     {
         $payload = [
             self::PAYLOAD_KEY_ACCESS => $scope->toArray(),
@@ -198,7 +197,7 @@ class JwtAuthenticator implements Authenticator
      * @param array $payload
      * @return bool
      */
-    private function hasExpireDate($payload)
+    private function hasExpireDate($payload): bool
     {
         return array_key_exists(self::PAYLOAD_KEY_EXPIRATION, $payload);
     }
@@ -210,7 +209,7 @@ class JwtAuthenticator implements Authenticator
      *
      * @return Scope
      */
-    private function getAccessScope($payload)
+    private function getAccessScope($payload): Scope
     {
         if (!array_key_exists(self::PAYLOAD_KEY_USER_ID, $payload)) {
             throw new ForbiddenException('No request parameter with key ' . self::PAYLOAD_KEY_USER_ID . ' found. As the jwt does not provide an expire date this is mandatory.');
@@ -236,7 +235,7 @@ class JwtAuthenticator implements Authenticator
      *
      * @return Scope
      */
-    public function getScope()
+    public function getScope(): Scope
     {
         return Scope::fromArray($this->scopeAccess);
     }
