@@ -42,6 +42,8 @@ abstract class ParameterRule
 
     const REQUEST_REFRESH_ACCESS = '_request_refresh_access';
 
+    const REPOSITORY_INTERFACE = '_repository_interface';
+
     const RETURN = '_api_return';
     const EXAMPLE = '_api_example';
 }

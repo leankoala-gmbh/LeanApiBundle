@@ -1,6 +1,6 @@
 <?php
 
-namespace Leankoala\LeanApiBundle\Client\Creator\JavaScript;
+namespace Leankoala\LeanApiBundle\Client\Creator\PHP;
 
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
@@ -15,7 +15,7 @@ use Twig\Environment;
  * @author Nils Langner (nils.langner@leankoala.com)
  * created 2020-07-01
  */
-class JavaScriptRepositoryCreator implements RepositoryCreator
+class PhpRepositoryCreator implements RepositoryCreator
 {
     private $outputDirectory;
     private $template;
@@ -52,33 +52,34 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $files = [];
 
         if (count($constants) > 0) {
-            $constantContent = $this->template->render('JavaScript/Snippets/constants.js.twig',
 
+            $constantContent = $this->template->render('PHP/Snippets/constants.php.twig',
                 [
                     'repository' => $repositoryName,
                     'constants' => $constants
                 ]);
 
-            $constFilename = $this->outputDirectory . 'Constants/' . ucfirst($repositoryName) . '.js';
+            $constFilename = $this->outputDirectory . 'Constants/' . ucfirst($repositoryName) . '.php';
             file_put_contents($constFilename, $constantContent);
 
             $files[] = $constFilename;
         }
 
-        $classContent = $this->template->render('JavaScript/Snippets/repository.js.twig',
+        $classContent = $this->template->render('PHP/Snippets/repository.php.twig',
             [
                 'repository' => $repositoryName,
                 'endpoints' => $endpoints,
                 'jsDocs' => $jsDocs,
                 'typeDefs' => $typeDefs,
-                'className' => $className
+                'className' => $className,
+                'interface' => $repositoryMeta['interface']
             ]);
 
         $classContent = str_replace('{Integer}', '{Number}', $classContent);
         $classContent = str_replace('{Mixed}', '{*}', $classContent);
         $classContent = str_replace('{List}', '{Array}', $classContent);
 
-        $filename = $this->outputDirectory . 'Entities/' . $className . '.js';
+        $filename = $this->outputDirectory . 'Entities/' . $className . '.php';
 
         file_put_contents($filename, $classContent);
 
@@ -108,10 +109,10 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             $repositoryClasses[] = $this->getClassName($repository, false);
         }
 
-        $classContent = $this->template->render('JavaScript/Snippets/collection.js.twig',
+        $classContent = $this->template->render('PHP/Snippets/collection.php.twig',
             ['repositories' => $repositoryClasses]);
 
-        $filename = $this->outputDirectory . 'RepositoryCollection.js';
+        $filename = $this->outputDirectory . 'RepositoryCollection.php';
 
         file_put_contents($filename, $classContent);
 
@@ -139,12 +140,6 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             }
 
             $jsDoc .= "\n";
-        }
-
-        if($endpoint->getPath()) {
-            $jsDoc .= "   * request url: /kapi/v1/" . $endpoint->getPath() . "\n";
-            $jsDoc .= "   * request method: ".$endpoint->getMethod() .  "\n";
-            $jsDoc .= "   *\n";
         }
 
         foreach ($endpoint->getPathParameters() as $parameter) {

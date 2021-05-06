@@ -3,6 +3,7 @@
 namespace Leankoala\LeanApiBundle\Client;
 
 use Leankoala\LeanApiBundle\Client\Creator\JavaScript\JavaScriptRepositoryCreator;
+use Leankoala\LeanApiBundle\Client\Creator\PHP\PhpRepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
 use Leankoala\LeanApiBundle\Client\Exception\BrokenSchemaException;
@@ -65,14 +66,16 @@ class Creator
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
 
         $endpointContainer = $this->getAllEndpoints($pathPrefix);
+
         $endpoints = $endpointContainer['endpoints'];
         $constants = $endpointContainer['constants'];
+        $repositoryMeta = $endpointContainer['repository'];
 
         $files = [];
 
         foreach ($endpoints as $repositoryName => $repositoryEndpoints) {
             /** @var Endpoint[] $repositoryEndpoints */
-            $files = array_merge($repositoryCreator->create($repositoryName, $repositoryEndpoints, $constants[$repositoryName]), $files);
+            $files = array_merge($repositoryCreator->create($repositoryName, $repositoryEndpoints, $constants[$repositoryName], $repositoryMeta[$repositoryName]), $files);
         }
 
         $files = array_merge($files, $repositoryCreator->finish(array_keys($endpoints)));
@@ -87,13 +90,13 @@ class Creator
      *
      * @param string $pathPrefix
      *
-     * @return array()
+     * @return array
      */
     private function getAllEndpoints($pathPrefix)
     {
         $collection = $this->router->getRouteCollection();
 
-        $endpoints = [];
+        $endpoints = ['endpoints' => [], 'constants' => [], 'interfaces' => []];
 
         $knownEndpoints = [];
 
@@ -102,6 +105,7 @@ class Creator
             $path = $route->getPath();
 
             if (strpos($path, $pathPrefix) === 0) {
+
                 foreach ($route->getMethods() as $method) {
                     if (strtolower($method) != 'options') {
                         try {
@@ -122,6 +126,12 @@ class Creator
                                 if ($schema[ParameterRule::REQUEST_PRIVATE] === true) {
                                     continue;
                                 }
+                            }
+
+                            if (array_key_exists(ParameterRule::REPOSITORY_INTERFACE, $schema)) {
+                                $interface = $schema[ParameterRule::REPOSITORY_INTERFACE];
+                            } else {
+                                $interface = false;
                             }
 
                             $identifier = $repository . '::' . $schema[ParameterRule::METHOD_NAME];
@@ -148,6 +158,8 @@ class Creator
 
                         $endpoints['endpoints'][$repository][] = new Endpoint($method, $path, $schema);
                         $endpoints['constants'][$repository] = array_merge($endpoints['constants'][$repository], $schemaContainer['constants']);
+
+                        $endpoints['repository'][$repository] = ['interface' => $interface];
                     }
                 }
             }
@@ -156,10 +168,18 @@ class Creator
         return $endpoints;
     }
 
+    /**
+     * Initialize all possible output languages.
+     *
+     * @param string $outputDir
+     * @param Environment $template
+     */
     private function initLanguages($outputDir, Environment $template)
     {
         $this->languages['javascript'] = new JavaScriptRepositoryCreator($outputDir, $template);
+        $this->languages['php'] = new PhpRepositoryCreator($outputDir, $template);
     }
+
 
     /**
      * @param $language
@@ -218,6 +238,10 @@ class Creator
             if (!array_key_exists(ParameterRule::REQUEST_REPOSITORY, $schema)) {
                 $schema[ParameterRule::REQUEST_REPOSITORY] = $schemas[ParameterRule::REQUEST_REPOSITORY];
             }
+        }
+        
+        if (array_key_exists(ParameterRule::REPOSITORY_INTERFACE, $schemas)) {
+            $schema[ParameterRule::REPOSITORY_INTERFACE] = $schemas[ParameterRule::REPOSITORY_INTERFACE];
         }
 
         if (!array_key_exists(ParameterRule::METHOD_NAME, $schema)) {

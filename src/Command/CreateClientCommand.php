@@ -2,12 +2,15 @@
 
 namespace Leankoala\LeanApiBundle\Command;
 
-use Leankoala\LeanApiBundle\Client\Creator;
+use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 /**
  * Class CreateClientCommand
@@ -19,8 +22,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author Nils Langner (nils.langner@leankoala.com)
  * @created 2020-07-08
  */
-class CreateClientCommand extends ContainerAwareCommand
+class CreateClientCommand extends Command
 {
+    private $container;
+
+    public function __construct(string $name = null, ContainerInterface $container)
+    {
+        parent::__construct($name);
+        $this->container = $container;
+    }
+
     /**
      * @inheritDoc
      */
@@ -66,7 +77,10 @@ class CreateClientCommand extends ContainerAwareCommand
         $output->writeln('  Creating client for <info>' . $language . '</info> with path prefix <info>' . $pathPrefix . '</info>.');
         $output->writeln('');
 
-        $creator = new Creator($this->getContainer()->get('router'), $this->getContainer()->get('twig'), $outputDir, $removePrefix);
+
+        $twig = new Environment(new FilesystemLoader(__DIR__ . '/../Client/Creator'));
+
+        $creator = new Creator($this->container->get('router'), $twig, $outputDir, $removePrefix);
         $newFiles = $creator->create($language, $pathPrefix);
 
         $output->writeln('  <info>Successfully</info> created ' . count($newFiles) . ' files:');
@@ -77,5 +91,8 @@ class CreateClientCommand extends ContainerAwareCommand
         }
 
         $output->writeln('');
+
+
+        return 0;
     }
 }
