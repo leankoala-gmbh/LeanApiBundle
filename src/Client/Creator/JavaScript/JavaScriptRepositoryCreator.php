@@ -52,8 +52,8 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $files = [];
 
         if (count($constants) > 0) {
-
             $constantContent = $this->template->render('JavaScript/Snippets/constants.js.twig',
+
                 [
                     'repository' => $repositoryName,
                     'constants' => $constants

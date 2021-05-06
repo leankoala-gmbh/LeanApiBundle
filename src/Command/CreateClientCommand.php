@@ -2,8 +2,8 @@
 
 namespace Leankoala\LeanApiBundle\Command;
 
-use Leankoala\LeanApiBundle\Client\Creator;
 use Psr\Container\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -77,6 +77,7 @@ class CreateClientCommand extends Command
         $output->writeln('  Creating client for <info>' . $language . '</info> with path prefix <info>' . $pathPrefix . '</info>.');
         $output->writeln('');
 
+
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../Client/Creator'));
 
         $creator = new Creator($this->container->get('router'), $twig, $outputDir, $removePrefix);
@@ -90,6 +91,7 @@ class CreateClientCommand extends Command
         }
 
         $output->writeln('');
+
 
         return 0;
     }

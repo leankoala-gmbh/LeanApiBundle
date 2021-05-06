@@ -158,6 +158,7 @@ class Creator
 
                         $endpoints['endpoints'][$repository][] = new Endpoint($method, $path, $schema);
                         $endpoints['constants'][$repository] = array_merge($endpoints['constants'][$repository], $schemaContainer['constants']);
+
                         $endpoints['repository'][$repository] = ['interface' => $interface];
                     }
                 }
@@ -179,11 +180,9 @@ class Creator
         $this->languages['php'] = new PhpRepositoryCreator($outputDir, $template);
     }
 
+
     /**
-     * Get the corresponding language translator
-     *
-     * @param string $language
-     *
+     * @param $language
      * @return RepositoryCreator
      */
     private function getRepositoryCreator($language)
@@ -240,7 +239,7 @@ class Creator
                 $schema[ParameterRule::REQUEST_REPOSITORY] = $schemas[ParameterRule::REQUEST_REPOSITORY];
             }
         }
-
+        
         if (array_key_exists(ParameterRule::REPOSITORY_INTERFACE, $schemas)) {
             $schema[ParameterRule::REPOSITORY_INTERFACE] = $schemas[ParameterRule::REPOSITORY_INTERFACE];
         }
