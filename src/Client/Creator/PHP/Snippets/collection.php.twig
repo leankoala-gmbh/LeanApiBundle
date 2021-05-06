@@ -1,0 +1,67 @@
+<?php
+
+namespace Leankoala\ApiClient\Repository;
+
+use Leankoala\ApiClient\Connection\Connection;
+use Leankoala\ApiClient\Exception\UnknownRepositoryException;
+
+{% for repository in repositories %}use Leankoala\ApiClient\Repository\Entity\{{ repository }}Repository;
+{% endfor %}
+
+/**
+ * Class RepositoryCollection
+ *
+ * @package Leankoala\ApiClient\Repository
+ *
+ * @author Nils Langner <nils.langner@leankoala.com>
+ * @author Sascha Fuchs <sascha.fuchs@leankoala.com>
+ *
+ * created {{ "now" | date ('Y-m-d') | raw }}
+ */
+class RepositoryCollection
+{
+    /**
+     * @var Repository[]
+     */
+    private $repositories = [];
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * RepositoryCollection constructor.
+     *
+     * @param Connection $connection
+     */
+    public function __construct($connection)
+    {
+        $this->connection = $connection;
+
+{% for repository in repositories %}        $this->repositories['{{ repository | lower }}'] = new {{ repository }}Repository();
+{% endfor %}
+    }
+
+    /**
+     * Get the initialized repository that is already connected.
+     *
+     * @param string $entityType
+     * @return Repository
+     *
+     * @throws UnknownRepositoryException
+     */
+    public function getRepository($entityType)
+    {
+        $repositoryName = strtolower($entityType);
+
+        if (!array_key_exists($repositoryName, $this->repositories)) {
+            throw new UnknownRepositoryException('No repository with name ' . $repositoryName . ' found. Registered repositories are: ' . implode(', ', array_keys($this->repositories)) . '.');
+        }
+
+        $repo = $this->repositories[$entityType];
+        $repo->init($this->connection);
+
+        return $repo;
+    }
+}

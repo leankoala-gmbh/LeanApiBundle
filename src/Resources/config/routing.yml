@@ -1,0 +1,4 @@
+lean_api_memory_documentation_markdown:
+  path:     /_api/v1/documentation/markdown
+  defaults: { _controller: Leankoala\LeanApiBundle\Controller\DocumentationController::markdownAction }
+  methods:  [GET, OPTIONS]
