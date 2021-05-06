@@ -141,6 +141,12 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             $jsDoc .= "\n";
         }
 
+        if($endpoint->getPath()) {
+            $jsDoc .= "   * request url: /kapi/v1/" . $endpoint->getPath() . "\n";
+            $jsDoc .= "   * request method: ".$endpoint->getMethod() .  "\n";
+            $jsDoc .= "   *\n";
+        }
+
         foreach ($endpoint->getPathParameters() as $parameter) {
             $jsDoc .= "   * @param " . $parameter . "\n";
         }

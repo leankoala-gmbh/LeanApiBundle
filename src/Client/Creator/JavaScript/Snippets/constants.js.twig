@@ -1,3 +1,5 @@
-{% for index, constant in constants %}
-export const {{ index }} = '{{ constant }}'
-{% endfor %}
+export default {
+    {% for index, constant in constants %}{{ index }} : '{{ constant }}',
+    {% endfor %}
+_GENERATED  : true
+}
