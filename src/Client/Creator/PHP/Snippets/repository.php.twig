@@ -25,7 +25,7 @@ class {{ className }} extends Repository {% if interface %}implements {{ interfa
 {% endif %}
 
 {% if endpoint.forceAccessRefresh %}
-    $result = $this->connection->send($route, $argList)
+    $result = $this->connection->send($route, $argList);
     $this->connection->refreshAccessToken(true);
     return $result;
 {% else %}

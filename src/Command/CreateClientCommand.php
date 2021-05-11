@@ -2,6 +2,7 @@
 
 namespace Leankoala\LeanApiBundle\Command;
 
+use Leankoala\LeanApiBundle\Client\Creator;
 use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
@@ -22,14 +23,14 @@ use Twig\Loader\FilesystemLoader;
  * @author Nils Langner (nils.langner@leankoala.com)
  * @created 2020-07-08
  */
-class CreateClientCommand extends Command
+class CreateClientCommand extends ContainerAwareCommand
 {
-    private $container;
+    // private $container;
 
-    public function __construct(string $name = null, ContainerInterface $container)
+    public function __construct(string $name = null)
     {
         parent::__construct($name);
-        $this->container = $container;
+        // $this->container = $container;
     }
 
     /**
@@ -80,7 +81,7 @@ class CreateClientCommand extends Command
 
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../Client/Creator'));
 
-        $creator = new Creator($this->container->get('router'), $twig, $outputDir, $removePrefix);
+        $creator = new Creator($this->getContainer()->get('router'), $twig, $outputDir, $removePrefix);
         $newFiles = $creator->create($language, $pathPrefix);
 
         $output->writeln('  <info>Successfully</info> created ' . count($newFiles) . ' files:');

@@ -71,7 +71,8 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
                 'endpoints' => $endpoints,
                 'jsDocs' => $jsDocs,
                 'typeDefs' => $typeDefs,
-                'className' => $className
+                'className' => $className,
+                'interface' => $repositoryMeta['interface']
             ]);
 
         $classContent = str_replace('{Integer}', '{Number}', $classContent);

@@ -43,6 +43,16 @@ class RepositoryCollection
 {% endfor %}
     }
 
+   /**
+     * Set the connection for the currently used cluster.
+     *
+     * @param Connection $connection
+     */
+    public function setClusterConnection(Connection $connection)
+    {
+        $this->clusterConnection = $connection;
+    }
+
     /**
      * Get the initialized repository that is already connected.
      *
@@ -50,6 +60,7 @@ class RepositoryCollection
      * @return Repository
      *
      * @throws UnknownRepositoryException
+     * @throws NotConnectedException
      */
     public function getRepository($entityType)
     {
@@ -60,7 +71,15 @@ class RepositoryCollection
         }
 
         $repo = $this->repositories[$entityType];
-        $repo->init($this->connection);
+
+        if ($repo instanceof MasterConnectionRepository) {
+            $repo->init($this->masterConnection);
+        } else {
+            if (is_null($this->clusterConnection)) {
+                throw new NotConnectedException('No connection established to the cluster. This will be triggert by the company selection.');
+            }
+            $repo->init($this->clusterConnection);
+        }
 
         return $repo;
     }

@@ -11,6 +11,11 @@ const Repository = require('../Repository')
  */
 class {{ className }} extends Repository {
 
+  constructor() {
+      super()
+      this._connectionType = '{% if interface %}{{ interface }}{% else %}ClusterConnection{% endif %}'
+  }
+
 {% for endpoint in endpoints %}
 {{ jsDocs[endpoint.name] | raw }}
   async {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}{{ parameter }}, {% endfor %}args) {

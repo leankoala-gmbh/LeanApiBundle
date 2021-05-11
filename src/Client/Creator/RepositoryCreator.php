@@ -13,11 +13,7 @@ interface RepositoryCreator
      *
      * @return string[]
      */
-<<<<<<< HEAD
     public function create($repositoryName, $endpoints, $constants = [], $repositoryMeta = []);
-=======
-    public function create($repositoryName, $endpoints, $constants = []);
->>>>>>> c312dd7d58662e3317ecf804be9548329ae53a2d
 
     /**
      * @param $repositories
