@@ -84,6 +84,10 @@ class ParameterBag implements \Countable
             unset($schema[ParameterRule::REQUEST_DESCRIPTION]);
         }
 
+        if (array_key_exists(ParameterRule::REQUEST_WITHOUT_TOKEN, $schema)) {
+            unset($schema[ParameterRule::REQUEST_WITHOUT_TOKEN]);
+        }
+        
         if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
             unset($schema[ParameterRule::REQUEST_PRIVATE]);
         }
