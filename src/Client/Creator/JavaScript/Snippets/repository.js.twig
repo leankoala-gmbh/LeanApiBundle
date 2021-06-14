@@ -22,11 +22,11 @@ class {{ className }} extends Repository {
 {% endif %}
 
 {% if endpoint.forceAccessRefresh %}
-    const result = await this._connection.send(route, argList)
+    const result = await this._connection.send(route, argList, {% if endpoint.isWithoutToken %}true{% else %}false{% endif %})
     await this._connection.refreshAccessToken(true)
     return result
 {% else %}
-    return this._connection.send(route, argList)
+    return this._connection.send(route, argList, {% if endpoint.isWithoutToken %}true{% else %}false{% endif %})
 {% endif %}
   }
 
