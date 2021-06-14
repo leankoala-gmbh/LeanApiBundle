@@ -169,6 +169,20 @@ class Endpoint
     }
 
     /**
+     * Return true if the request does not need an access token.
+     *
+     * @return bool
+     */
+    public function isWithoutToken()
+    {
+        if (array_key_exists(ParameterRule::REQUEST_WITHOUT_TOKEN, $this->schema)) {
+            return $this->schema[ParameterRule::REQUEST_WITHOUT_TOKEN];
+        } else {
+            return false;
+        }
+    }
+    
+    /**
      * @return array
      */
     public function getSchema(): array
