@@ -32,6 +32,7 @@ abstract class ParameterRule
     const DESCRIPTION = 'description';
 
     const REQUEST_DESCRIPTION = '_request_description';
+    const REQUEST_WITHOUT_TOKEN = '_request_without_token';
     const REQUEST_PRIVATE = '_request_private';
 
     const REQUEST_REPOSITORY = '_request_repository';
