@@ -75,7 +75,7 @@ class ParameterBag implements \Countable
      *
      * @throws ParameterBagException
      */
-    public function __construct($parameters, RegistryInterface|Registry $doctrine, $schema = [])
+    public function __construct($parameters, RegistryInterface|Registry|null $doctrine = null, $schema = [])
     {
         $this->doctrine = $doctrine;
         $this->parameters = $parameters;
@@ -87,7 +87,7 @@ class ParameterBag implements \Countable
         if (array_key_exists(ParameterRule::REQUEST_WITHOUT_TOKEN, $schema)) {
             unset($schema[ParameterRule::REQUEST_WITHOUT_TOKEN]);
         }
-        
+
         if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
             unset($schema[ParameterRule::REQUEST_PRIVATE]);
         }

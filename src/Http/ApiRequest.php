@@ -55,7 +55,7 @@ class ApiRequest
      * @param RegistryInterface|Registry $doctrine
      * @param array $schema
      */
-    public function __construct(Request $request, RegistryInterface | Registry $doctrine, $schema = [])
+    public function __construct(Request $request, RegistryInterface | Registry $doctrine = null, $schema = [])
     {
         $this->request = $request;
         $this->schema = $schema;
