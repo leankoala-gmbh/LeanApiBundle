@@ -20,9 +20,15 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ApiRequest
 {
+    const RATE_LIMIT_OFF = 'off';
+    const RATE_LIMIT_ANONYMOUS = 'anonymous';
+    const RATE_LIMIT_AUTHENTICATED = 'authenticated';
+
     const HEADER_ACCEPT_LANGUAGE = 'accept-language';
 
     const ANNOTATION_API_SCHEMA = 'apiSchema';
+
+    const KEY_RATE_LIMIT_STRATEGY = '_internal_rate_limit';
 
     /**
      * The parameter container for all the request payload parameters
@@ -48,6 +54,8 @@ class ApiRequest
      */
     private $doctrine;
 
+    private $rateLimit = self::RATE_LIMIT_OFF;
+
     /**
      * ApiRequest constructor.
      *
@@ -55,7 +63,7 @@ class ApiRequest
      * @param RegistryInterface|Registry $doctrine
      * @param array $schema
      */
-    public function __construct(Request $request, RegistryInterface | Registry $doctrine = null, $schema = [])
+    public function __construct(Request $request, RegistryInterface|Registry $doctrine = null, $schema = [])
     {
         $this->request = $request;
         $this->schema = $schema;
@@ -81,6 +89,11 @@ class ApiRequest
 
         if (strlen($payloadJson) > 0 && is_null($payload)) {
             throw new BadRequestHttpException('Payload is not a valid JSON string.');
+        }
+
+        if (array_key_exists(self::KEY_RATE_LIMIT_STRATEGY, $this->schema)) {
+            $this->rateLimit = $this->schema[self::KEY_RATE_LIMIT_STRATEGY];
+            unset($this->schema[self::KEY_RATE_LIMIT_STRATEGY]);
         }
 
         $this->parameterBag = new ParameterBag($payload, $this->doctrine, $this->schema);
@@ -140,5 +153,15 @@ class ApiRequest
         }
 
         return $languageArray[0];
+    }
+
+    /**
+     * Return the rate limit strategy.
+     *
+     * @return string
+     */
+    public function getRateLimitStrategy()
+    {
+        return $this->rateLimit;
     }
 }
