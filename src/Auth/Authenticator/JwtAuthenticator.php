@@ -253,7 +253,7 @@ class JwtAuthenticator implements Authenticator
      */
     public function getCreatedDate(): \DateTime
     {
-        $dt = new DateTime();
+        $dt = new \DateTime();
         $dt->setTimestamp($this->decodedToken[self::PAYLOAD_KEY_TIMESTAMP]);
         return $dt;
     }
