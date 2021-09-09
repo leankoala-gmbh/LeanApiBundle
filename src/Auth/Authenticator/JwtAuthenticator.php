@@ -44,6 +44,13 @@ class JwtAuthenticator implements Authenticator
     private $doctrine;
 
     /**
+     * The decoded token as array.
+     *
+     * @var string
+     */
+    private $decodedToken;
+
+    /**
      * @var ScopeHandler
      */
     private ScopeHandler $scopeHandler;
@@ -81,6 +88,8 @@ class JwtAuthenticator implements Authenticator
         try {
             $payloadObject = JWT::decode($userToken, $this->secret, [$this->algorithm]);
             $payload = (array)$payloadObject;
+
+            $this->decodedToken = $payload;
 
             if ($this->hasExpireDate($payload)) {
                 $this->scopeAccess = (array)$payload[self::PAYLOAD_KEY_ACCESS];
@@ -233,11 +242,22 @@ class JwtAuthenticator implements Authenticator
 
     /**
      * @inheritDoc
-     *
-     * @return Scope
      */
     public function getScope(): Scope
     {
         return Scope::fromArray($this->scopeAccess);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCreatedDate(): \DateTime
+    {
+        return new \DateTime($this->decodedToken[self::PAYLOAD_KEY_TIMESTAMP]);
+    }
+
+    public function getUserId(): int
+    {
+        return $this->decodedToken[self::PAYLOAD_KEY_USER_ID];
     }
 }
