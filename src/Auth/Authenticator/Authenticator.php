@@ -45,4 +45,16 @@ interface Authenticator
      * @return Scope
      */
     public function getScope(): Scope;
+
+    /**
+     * Return the date time of the moment the token was created.
+     *
+     * @return \DateTime
+     */
+    public function getCreatedDate(): \DateTime;
+
+    /**
+     * @return int
+     */
+    public function getUserId(): int;
 }
