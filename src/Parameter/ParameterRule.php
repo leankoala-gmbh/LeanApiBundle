@@ -42,6 +42,7 @@ abstract class ParameterRule
     const METHOD_NAME = '_request_method_name';
 
     const REQUEST_REFRESH_ACCESS = '_request_refresh_access';
+    const REPOSITORY_INTERFACE = '_repository_interface';
 
     const RETURN = '_api_return';
     const EXAMPLE = '_api_example';

@@ -1,0 +1,4 @@
+{% for index, constant in constants %}
+export const {{ index }} = '{{ constant }}'
+
+{% endfor %}
