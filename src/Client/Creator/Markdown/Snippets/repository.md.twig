@@ -1,0 +1,14 @@
+# {{ className }}
+
+```php
+$client = new Client(Client::ENVIRONMENT_DEVELOP);
+$client->connect('demo', 'demo', true);
+/** @var ProjectRepository $repo */
+$repo = $client->getRepository('{{ repository }}');
+```
+
+{% for endpoint in endpoints %}
+## {{ endpoint.name }}
+{{ endpoint.description }}
+
+{% endfor %}

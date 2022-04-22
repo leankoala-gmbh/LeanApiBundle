@@ -1,6 +1,6 @@
 <?php
 
-namespace Leankoala\LeanApiBundle\Client\Creator\PHP;
+namespace Leankoala\LeanApiBundle\Client\Creator\Markdown;
 
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
@@ -8,14 +8,14 @@ use Leankoala\LeanApiBundle\Parameter\ParameterRule;
 use Twig\Environment;
 
 /**
- * Class PhpRepositoryCreator
+ * Class MarkdownRepositoryCreator
  *
- * @package Leankoala\LeanApiBundle\Client\Creator\PHP
+ * @package Leankoala\LeanApiBundle\Client\Creator\Markdown
  *
  * @author Nils Langner (nils.langner@leankoala.com)
  * created 2020-07-01
  */
-class PhpRepositoryCreator implements RepositoryCreator
+class MarkdownRepositoryCreator implements RepositoryCreator
 {
     private $outputDirectory;
     private $template;
@@ -43,8 +43,8 @@ class PhpRepositoryCreator implements RepositoryCreator
         $typeDefs = "";
 
         foreach ($endpoints as $endpoint) {
-            $jsDocs[$endpoint->getName()] = $this->getPHPDoc($endpoint);
-            $typeDefs .= $this->getResultTypeDefinitionPHPDoc($endpoint);
+            $jsDocs[$endpoint->getName()] = $this->getJsDoc($endpoint);
+            $typeDefs .= $this->getResultTypeDefinitionJsDoc($endpoint);
         }
 
         $className = $this->getClassName($repositoryName);
@@ -65,23 +65,21 @@ class PhpRepositoryCreator implements RepositoryCreator
             $files[] = $constFilename;
         }
 
-        $context = [
-            'repository' => $repositoryName,
-            'endpoints' => $endpoints,
-            'jsDocs' => $jsDocs,
-            'typeDefs' => $typeDefs,
-            'className' => $className
-        ];
+        $classContent = $this->template->render('Markdown/Snippets/repository.md.twig',
+            [
+                'repository' => $repositoryName,
+                'endpoints' => $endpoints,
+                'jsDocs' => $jsDocs,
+                'typeDefs' => $typeDefs,
+                'className' => $className,
+                'interface' => $repositoryMeta['interface']
+            ]);
 
-        if (array_key_exists('interface', $repositoryMeta)) {
-            $context['interface'] = $repositoryMeta['interface'];
-        }
+        $classContent = str_replace('{Integer}', '{Number}', $classContent);
+        $classContent = str_replace('{Mixed}', '{*}', $classContent);
+        $classContent = str_replace('{List}', '{Array}', $classContent);
 
-        $classContent = $this->template->render('PHP/Snippets/repository.php.twig', $context);
-
-        $classContent = str_replace('{List}', 'array', $classContent);
-
-        $filename = $this->outputDirectory . 'Entities/' . $className . '.php';
+        $filename = $this->outputDirectory . 'Entities/' . $className . '.md';
 
         file_put_contents($filename, $classContent);
 
@@ -129,7 +127,7 @@ class PhpRepositoryCreator implements RepositoryCreator
      * @param Endpoint $endpoint
      * @return string
      */
-    private function getPHPDoc(Endpoint $endpoint)
+    private function getJsDoc(Endpoint $endpoint)
     {
         $jsDoc = "  /**\n";
 
@@ -145,14 +143,14 @@ class PhpRepositoryCreator implements RepositoryCreator
         }
 
         foreach ($endpoint->getPathParameters() as $parameter) {
-            $jsDoc .= "   * @param $" . $parameter . "\n";
+            $jsDoc .= "   * @param " . $parameter . "\n";
         }
 
         $parameters = $endpoint->getParameters();
-        $jsDoc .= "   * @param array \$args\n";
+        $jsDoc .= "   * @param {Object} args\n";
         if (count($parameters) > 0) {
             foreach ($parameters as $parameter) {
-                $paramType = "@param " . ucfirst($parameter["type"]) . " args." . $parameter['name'] . ' ';
+                $paramType = "@param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ';
                 $optional = $this->getOptionString($parameter);
                 $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . $optional . "\n";
             }
@@ -169,7 +167,7 @@ class PhpRepositoryCreator implements RepositoryCreator
         return $jsDoc;
     }
 
-    private function getResultTypeDefinitionPHPDoc(Endpoint $endpoint)
+    private function getResultTypeDefinitionJsDoc(Endpoint $endpoint)
     {
         if ($endpoint->getResultType()) {
             $jsDocHeader = "/**\n";
@@ -220,11 +218,7 @@ class PhpRepositoryCreator implements RepositoryCreator
             } else if ($default === false) {
                 $default = 'false';
             }
-            if (is_array($default)) {
-                $options = 'default: ' . json_encode($default);
-            } else {
-                $options = 'default: ' . $default;
-            }
+            $options = 'default: ' . $default;
         } else if (!$parameter['required']) {
             $options = 'optional';
         }

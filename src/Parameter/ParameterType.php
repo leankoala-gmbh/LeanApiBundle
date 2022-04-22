@@ -33,7 +33,7 @@ abstract class ParameterType
      */
     static private function isValidUrl($url)
     {
-        return filter_var($url, FILTER_VALIDATE_URL);
+        return filter_var(idn_to_ascii($url), FILTER_VALIDATE_URL);
     }
 
     /**

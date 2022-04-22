@@ -15,7 +15,7 @@ class {{ className }} extends Repository {% if interface %}implements {{ interfa
 
 {% for endpoint in endpoints %}
 {{ jsDocs[endpoint.name] | raw }}
-  public function {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}${{ parameter }}, {% endfor %}$args)
+  public function {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}${{ parameter }}, {% endfor %}array $args = [])
   {
     $route = ['path' => '{{ endpoint.path | raw }}', 'method' => '{{ endpoint.method }}', 'version' =>  1];
     $argList = array_merge([{% for parameter in endpoint.pathParameters %}'{{parameter}}' => ${{ parameter }}{% if not loop.last %}, {% endif %}{% endfor %}], $args);

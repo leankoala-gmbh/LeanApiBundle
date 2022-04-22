@@ -142,9 +142,9 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             $jsDoc .= "\n";
         }
 
-        if($endpoint->getPath()) {
+        if ($endpoint->getPath()) {
             $jsDoc .= "   * request url: /kapi/v1/" . $endpoint->getPath() . "\n";
-            $jsDoc .= "   * request method: ".$endpoint->getMethod() .  "\n";
+            $jsDoc .= "   * request method: " . $endpoint->getMethod() . "\n";
             $jsDoc .= "   *\n";
         }
 
@@ -224,7 +224,11 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             } else if ($default === false) {
                 $default = 'false';
             }
-            $options = 'default: ' . $default;
+            if (is_array($default)) {
+                $options = 'default: ' . json_encode($default);
+            } else {
+                $options = 'default: ' . $default;
+            }
         } else if (!$parameter['required']) {
             $options = 'optional';
         }

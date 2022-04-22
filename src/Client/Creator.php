@@ -2,7 +2,10 @@
 
 namespace Leankoala\LeanApiBundle\Client;
 
+use Leankoala\LeanApiBundle\Client\Creator\ApiBlueprint\ApiBlueprintRepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Creator\JavaScript\JavaScriptRepositoryCreator;
+
+use Leankoala\LeanApiBundle\Client\Creator\Markdown\MarkdownRepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Creator\PHP\PhpRepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Creator\RepositoryCreator;
 use Leankoala\LeanApiBundle\Client\Endpoint\Endpoint;
@@ -178,8 +181,9 @@ class Creator
     {
         $this->languages['javascript'] = new JavaScriptRepositoryCreator($outputDir, $template);
         $this->languages['php'] = new PhpRepositoryCreator($outputDir, $template);
+        $this->languages['markdown'] = new MarkdownRepositoryCreator($outputDir, $template);
+        $this->languages['blueprint'] = new ApiBlueprintRepositoryCreator($outputDir, $template);
     }
-
 
     /**
      * @param $language
@@ -187,6 +191,9 @@ class Creator
      */
     private function getRepositoryCreator($language)
     {
+        if (!array_key_exists($language, $this->languages)) {
+            throw new \RuntimeException('Language "' . $language . '" not found. Supported langauges are: ' . implode(', ', array_keys($this->languages)). '.');
+        }
         return $this->languages[$language];
     }
 
@@ -239,7 +246,11 @@ class Creator
                 $schema[ParameterRule::REQUEST_REPOSITORY] = $schemas[ParameterRule::REQUEST_REPOSITORY];
             }
         }
-        
+
+        if (array_key_exists(ParameterRule::REPOSITORY_INTERFACE, $schemas)) {
+            $schema[ParameterRule::REPOSITORY_INTERFACE] = $schemas[ParameterRule::REPOSITORY_INTERFACE];
+        }
+
         if (array_key_exists(ParameterRule::REPOSITORY_INTERFACE, $schemas)) {
             $schema[ParameterRule::REPOSITORY_INTERFACE] = $schemas[ParameterRule::REPOSITORY_INTERFACE];
         }
