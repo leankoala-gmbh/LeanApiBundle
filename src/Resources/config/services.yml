@@ -9,9 +9,9 @@ services:
     class: Leankoala\LeanApiBundle\Configuration\ApiConfiguration
     arguments: ['/kapi/']
 
-#  leankoala_lean_api.cors:
-#    class: Leankoala\LeanApiBundle\EventListener\CorsListener
-#    arguments: ["@leankoala_lean_api.config"]
-#    tags:
-#      - { name: 'kernel.event_listener', event: 'kernel.request', method: onKernelRequest}
-#      - { name: 'kernel.event_listener', event: 'kernel.response', method: onKernelResponse }
+  leankoala_lean_api.cors:
+    class: Leankoala\LeanApiBundle\EventListener\CorsListener
+    arguments: ["@leankoala_lean_api.config"]
+    tags:
+      - { name: 'kernel.event_listener', event: 'kernel.request', method: onKernelRequest}
+      - { name: 'kernel.event_listener', event: 'kernel.response', method: onKernelResponse }
