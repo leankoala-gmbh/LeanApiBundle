@@ -78,10 +78,7 @@ class CreateClientCommand extends ContainerAwareCommand
         $output->writeln('  Creating client for <info>' . $language . '</info> with path prefix <info>' . $pathPrefix . '</info>.');
         $output->writeln('');
 
-
-        $twig = new Environment(new FilesystemLoader(__DIR__ . '/../Client/Creator'));
-
-        $creator = new Creator($this->getContainer()->get('router'), $twig, $outputDir, $removePrefix);
+        $creator = new Creator($this->getContainer()->get('router'), $this->getContainer()->get('twig'), $outputDir, $removePrefix);
         $newFiles = $creator->create($language, $pathPrefix);
 
         $output->writeln('  <info>Successfully</info> created ' . count($newFiles) . ' files:');
