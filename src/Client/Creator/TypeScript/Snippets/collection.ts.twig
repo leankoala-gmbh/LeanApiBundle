@@ -1,0 +1,40 @@
+{% for repository in repositories %}import {{ repository }}Repository from './Entities/{{ repository }}Repository'
+{% endfor %}
+
+/**
+ * This class was created by the LeanApiBundle.
+ *
+ * All changes made in this file will be overwritten by the next create run.
+ *
+ * @created {{ "now" | date ('Y-m-d') | raw }}
+ */
+class RepositoryCollection {
+
+  constructor(connection) {
+
+    this._repositories = {}
+    {% for repository in repositories %}this._repositories[ '{{ repository | lower }}' ] = new {{ repository }}(connection)
+    {% endfor %}
+
+  }
+
+  getRepository(entityType) {
+
+    const repositoryName = entityType.toLowerCase()
+    if (this._repositories.hasOwnProperty(repositoryName)) {
+      return this._repositories[ repositoryName ]
+    } else {
+      throw new Error('No repository with name ' + repositoryName + ' found. Registered repositories are: ' + JSON.stringify(Object.keys(this._repositories)))
+    }
+
+  }
+
+{% for repository in repositories %}
+  get{{ repository }}Repository(): {{ repository }}Repository {
+      return this.getRepository("{{ repository }}")
+  }
+
+{% endfor %}
+}
+
+export default RepositoryCollection

@@ -31,6 +31,10 @@ class MarkdownCreator extends BaseCreator
             unset($schemaArray[ParameterRule::REQUEST_DESCRIPTION]);
         }
 
+        if (array_key_exists(ParameterRule::RESULT_FORMAT, $schemaArray)) {
+            unset($schemaArray[ParameterRule::RESULT_FORMAT]);
+        }
+
         if (count($schemaArray) > 0) {
             $markdown = $this->withRequestParameters($markdown, $schemaArray);
         }

@@ -2,7 +2,6 @@
 
 namespace Leankoala\LeanApiBundle\Http;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use Leankoala\LeanApiBundle\Parameter\Exception\BadParameterException;
 use Leankoala\LeanApiBundle\Parameter\ParameterBag;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -52,10 +51,10 @@ class ApiRequest
      * ApiRequest constructor.
      *
      * @param Request $request
-     * @param RegistryInterface|Registry $doctrine
+     * @param RegistryInterface $doctrine
      * @param array $schema
      */
-    public function __construct(Request $request, $doctrine, $schema = [])
+    public function __construct(Request $request, RegistryInterface $doctrine, $schema = [])
     {
         $this->request = $request;
         $this->schema = $schema;

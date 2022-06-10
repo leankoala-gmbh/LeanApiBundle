@@ -19,6 +19,9 @@ class Endpoint
     private $path;
     private $schema;
 
+    const PARAMETER_FIELD_REQUIRED = 'required';
+    const PARAMETER_FIELD_NAME = 'name';
+
     /**
      * Endpoint constructor.
      *
@@ -61,9 +64,18 @@ class Endpoint
         return $parameters;
     }
 
-    public function getName()
+    public function hasPathParameters()
     {
-        return $this->schema[ParameterRule::METHOD_NAME];
+        return count($this->getPathParameters()) > 0;
+    }
+
+    public function getName($firstLetterUppcase = false)
+    {
+        if ($firstLetterUppcase) {
+            return ucfirst($this->schema[ParameterRule::METHOD_NAME]);
+        } else {
+            return $this->schema[ParameterRule::METHOD_NAME];
+        }
     }
 
     public function getRequiredRequestParameters()
@@ -104,6 +116,11 @@ class Endpoint
         }
     }
 
+    public function hasResultType()
+    {
+        return !($this->getResultType() === false);
+    }
+
     public function getParameters()
     {
         $parameters = [];
@@ -117,8 +134,12 @@ class Endpoint
                 continue;
             }
 
+            if ($name === ParameterRule::RESULT_FORMAT) {
+                continue;
+            }
+
             $currentParameter = [
-                'name' => $name,
+                self::PARAMETER_FIELD_NAME => $name,
             ];
 
             if (array_key_exists(ParameterRule::DESCRIPTION, $parameter)) {
@@ -129,9 +150,9 @@ class Endpoint
             }
 
             if (array_key_exists(ParameterRule::REQUIRED, $parameter)) {
-                $currentParameter['required'] = $parameter[ParameterRule::REQUIRED];
+                $currentParameter[self::PARAMETER_FIELD_REQUIRED] = $parameter[ParameterRule::REQUIRED];
             } else {
-                $currentParameter['required'] = false;
+                $currentParameter[self::PARAMETER_FIELD_REQUIRED] = false;
             }
 
             if (array_key_exists(ParameterRule::TYPE, $parameter)) {
@@ -148,10 +169,19 @@ class Endpoint
                 $currentParameter['type'] = ParameterType::INTEGER;
             }
 
+            if (array_key_exists(ParameterRule::OPTIONS, $parameter)) {
+                $currentParameter[ParameterRule::OPTIONS] = $parameter[ParameterRule::OPTIONS];
+            }
+
             $parameters[] = $currentParameter;
         }
 
         return $parameters;
+    }
+
+    public function hasParameters()
+    {
+        return count($this->getParameters()) > 0;
     }
 
     /**

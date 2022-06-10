@@ -21,7 +21,7 @@ abstract class ParameterRule
      */
     const DEFAULT = 'default';
     const TYPE = 'type';
-    const OPTIONS = 'options';
+    const OPTIONS = '_options';
     const ENTITY = 'entity';
     const ALIAS = 'alias';
 
@@ -30,6 +30,7 @@ abstract class ParameterRule
     const GROUP = 'group';
 
     const DESCRIPTION = 'description';
+    const RESULT_FORMAT = 'result_format';
 
     const REQUEST_DESCRIPTION = '_request_description';
     const REQUEST_WITHOUT_TOKEN = '_request_without_token';

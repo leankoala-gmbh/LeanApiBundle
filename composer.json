@@ -6,8 +6,5 @@
     "psr-4": {
       "Leankoala\\LeanApiBundle\\": "src/"
     }
-  },
-  "require": {
-    "firebase/php-jwt": "^5.2.1.0"
   }
 }
