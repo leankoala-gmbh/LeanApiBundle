@@ -2,7 +2,6 @@
 
 namespace Leankoala\LeanApiBundle\Parameter;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use Leankoala\LeanApiBundle\Parameter\Exception\BadParameterException;
 use Leankoala\LeanApiBundle\Parameter\Exception\NotFoundException;
 use Leankoala\LeanApiBundle\Parameter\Exception\ParameterBagException;
@@ -75,7 +74,7 @@ class ParameterBag implements \Countable
      *
      * @throws ParameterBagException
      */
-    public function __construct($parameters, $doctrine, $schema = [])
+    public function __construct($parameters, RegistryInterface $doctrine, $schema = [])
     {
         $this->doctrine = $doctrine;
         $this->parameters = $parameters;
@@ -87,7 +86,7 @@ class ParameterBag implements \Countable
         if (array_key_exists(ParameterRule::REQUEST_WITHOUT_TOKEN, $schema)) {
             unset($schema[ParameterRule::REQUEST_WITHOUT_TOKEN]);
         }
-
+        
         if (array_key_exists(ParameterRule::REQUEST_PRIVATE, $schema)) {
             unset($schema[ParameterRule::REQUEST_PRIVATE]);
         }
@@ -135,11 +134,7 @@ class ParameterBag implements \Countable
             }
 
             if ($rules[ParameterRule::REQUIRED] && !$this->hasParameter($identifier)) {
-                if ($this->hasParameter(strtolower($identifier))) {
-                    throw new BadParameterException('Required field "' . $identifier . '" is missing. But lower case version of the parameter found. Parameters are case sensitive.');
-                } else {
-                    throw new BadParameterException('Required field "' . $identifier . '" is missing.');
-                }
+                throw new BadParameterException('Required field "' . $identifier . '" is missing.');
             }
 
             if (array_key_exists(ParameterRule::DEFAULT, $rules) && !$this->hasParameter($identifier)) {

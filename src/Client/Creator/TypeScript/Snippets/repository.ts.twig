@@ -1,0 +1,37 @@
+import Repository from '../Repository'
+
+{{ responseInterfaces | raw }}
+{{ argumentInterfaces | raw }}
+
+/**
+ * This class was created by the LeanApiBundle.
+ *
+ * All changes made in this file will be overwritten by the next create run.
+ *
+ * @created {{ "now" | date ('Y-m-d') | raw }}
+ */
+class {{ className }} extends Repository {
+
+{% for endpoint in endpoints %}
+{{ jsDocs[endpoint.name] | raw }}
+  async {{ endpoint.name }}({% for parameter in endpoint.pathParameters %}{{ parameter }}{% if not loop.last %}, {% endif %}{% endfor %}{% if endpoint.hasParameters %}{% if endpoint.hasPathParameters %}, {% endif %}args: I{{ endpoint.name(true) }}Arguments{% endif %}): Promise<{% if endpoint.hasResultType %}I{{ endpoint.name(true) }}Response{% else %}any{% endif %}> {
+    const route = { path: '{{ endpoint.path | raw }}', method: '{{ endpoint.method }}', version: 1 }
+    const argList = Object.assign({ {% for parameter in endpoint.pathParameters %}{{ parameter }}{% if not loop.last %}, {% endif %}{% endfor %} }, args)
+{% if endpoint.requiredRequestParameters | length > 0 %}
+    const requiredArguments = [{% for parameter in endpoint.requiredRequestParameters %}'{{ parameter }}'{% if not loop.last %}, {% endif %}{% endfor %}]
+    this._assertValidArguments(requiredArguments, argList)
+{% endif %}
+
+{% if endpoint.forceAccessRefresh %}
+    const result = await this._connection.send(route, argList)
+    await this._connection.refreshAccessToken(true)
+    return result
+{% else %}
+    return this._connection.send(route, argList)
+{% endif %}
+  }
+
+{% endfor %}
+}
+
+export default {{ className }}
