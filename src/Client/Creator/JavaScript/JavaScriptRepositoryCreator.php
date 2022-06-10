@@ -37,7 +37,7 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
     /**
      * @inheritDoc
      */
-    public function create($repositoryName, $endpoints, $constants = [], $repositoryMeta = [])
+    public function create($repositoryName, $endpoints, $constants = [])
     {
         $jsDocs = [];
         $typeDefs = "";
@@ -52,34 +52,33 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
         $files = [];
 
         if (count($constants) > 0) {
-            $constantContent = $this->template->render('JavaScript/Snippets/constants.js.twig',
 
+            $constantContent = $this->template->render(__DIR__ . '/Snippets/constants.ts.twig',
                 [
                     'repository' => $repositoryName,
                     'constants' => $constants
                 ]);
 
-            $constFilename = $this->outputDirectory . 'Constants/' . ucfirst($repositoryName) . '.js';
+            $constFilename = $this->outputDirectory . 'Constants/' . ucfirst($repositoryName) . '.ts';
             file_put_contents($constFilename, $constantContent);
 
             $files[] = $constFilename;
         }
 
-        $classContent = $this->template->render('JavaScript/Snippets/repository.js.twig',
+        $classContent = $this->template->render(__DIR__ . '/Snippets/repository.ts.twig',
             [
                 'repository' => $repositoryName,
                 'endpoints' => $endpoints,
                 'jsDocs' => $jsDocs,
                 'typeDefs' => $typeDefs,
-                'className' => $className,
-                'interface' => $repositoryMeta['interface']
+                'className' => $className
             ]);
 
         $classContent = str_replace('{Integer}', '{Number}', $classContent);
         $classContent = str_replace('{Mixed}', '{*}', $classContent);
         $classContent = str_replace('{List}', '{Array}', $classContent);
 
-        $filename = $this->outputDirectory . 'Entities/' . $className . '.js';
+        $filename = $this->outputDirectory . 'Entities/' . $className . '.ts';
 
         file_put_contents($filename, $classContent);
 
@@ -109,10 +108,10 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             $repositoryClasses[] = $this->getClassName($repository, false);
         }
 
-        $classContent = $this->template->render('JavaScript/Snippets/collection.js.twig',
+        $classContent = $this->template->render(__DIR__ . '/Snippets/collection.ts.twig',
             ['repositories' => $repositoryClasses]);
 
-        $filename = $this->outputDirectory . 'RepositoryCollection.js';
+        $filename = $this->outputDirectory . 'RepositoryCollection.ts';
 
         file_put_contents($filename, $classContent);
 
@@ -142,9 +141,9 @@ class JavaScriptRepositoryCreator implements RepositoryCreator
             $jsDoc .= "\n";
         }
 
-        if ($endpoint->getPath()) {
+        if($endpoint->getPath()) {
             $jsDoc .= "   * request url: /kapi/v1/" . $endpoint->getPath() . "\n";
-            $jsDoc .= "   * request method: " . $endpoint->getMethod() . "\n";
+            $jsDoc .= "   * request method: ".$endpoint->getMethod() .  "\n";
             $jsDoc .= "   *\n";
         }
 

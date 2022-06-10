@@ -1,5 +1,6 @@
 {% for repository in repositories %}import {{ repository }}Repository from './Entities/{{ repository }}Repository'
 {% endfor %}
+import Connection from "../Connection/Connection";
 
 /**
  * This class was created by the LeanApiBundle.
@@ -10,23 +11,42 @@
  */
 class RepositoryCollection {
 
-  constructor(connection) {
+  private readonly repositories: any
+  private masterConnection: any
+  private clusterConnection: any
 
-    this._repositories = {}
-    {% for repository in repositories %}this._repositories[ '{{ repository | lower }}' ] = new {{ repository }}(connection)
+  constructor() {
+
+    this.masterConnection = false
+    this.clusterConnection = false
+
+    this.repositories = {}
+    {% for repository in repositories %}this.repositories[ '{{ repository | lower }}' ] = new {{ repository }}Repository()
     {% endfor %}
 
   }
 
-  getRepository(entityType) {
+  setClusterConnection(connection: Connection) {
+    this.clusterConnection = connection
+  }
 
+  setMasterConnection(connection: Connection) {
+    this.masterConnection = connection
+  }
+
+  getRepository(entityType: string) {
     const repositoryName = entityType.toLowerCase()
-    if (this._repositories.hasOwnProperty(repositoryName)) {
-      return this._repositories[ repositoryName ]
+    if (repositoryName in this.repositories) {
+      const repo = this.repositories[repositoryName]
+      if (repo.getConnectionType() === 'ClusterConnection') {
+        repo.setConnection(this.clusterConnection)
+      } else {
+        repo.setConnection(this.masterConnection)
+      }
+      return this.repositories[repositoryName]
     } else {
-      throw new Error('No repository with name ' + repositoryName + ' found. Registered repositories are: ' + JSON.stringify(Object.keys(this._repositories)))
+      throw new Error('No repository with name ' + repositoryName + ' found. Registered repositories are: ' + JSON.stringify(Object.keys(this.repositories)))
     }
-
   }
 
 {% for repository in repositories %}

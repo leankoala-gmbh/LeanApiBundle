@@ -2,6 +2,7 @@
 
 namespace Leankoala\LeanApiBundle\Client\Endpoint;
 
+use Leankoala\LeanApiBundle\Client\Creator\TypeScript\TypeScriptRepositoryCreator;
 use Leankoala\LeanApiBundle\Parameter\ParameterRule;
 use Leankoala\LeanApiBundle\Parameter\ParameterType;
 

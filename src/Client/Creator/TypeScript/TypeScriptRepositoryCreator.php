@@ -260,6 +260,12 @@ class TypeScriptRepositoryCreator implements RepositoryCreator
         switch ($type) {
             case ParameterType::INTEGER:
                 return 'number';
+            case ParameterType::LIST:
+                return 'any[]';
+            case 'mixed':
+                return 'any';
+            case ParameterType::URL:
+                return 'string';
         }
 
         return $type;

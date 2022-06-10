@@ -69,6 +69,7 @@ class Creator
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
 
         $endpointContainer = $this->getAllEndpoints($pathPrefix);
+      
         $endpoints = $endpointContainer['endpoints'];
         $constants = $endpointContainer['constants'];
 
