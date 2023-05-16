@@ -69,7 +69,9 @@ class Creator
         $repositoryCreator = $this->getRepositoryCreator($outputLanguage);
 
         $endpointContainer = $this->getAllEndpoints($pathPrefix);
-      
+
+        // var_dump($endpointContainer);
+
         $endpoints = $endpointContainer['endpoints'];
         $constants = $endpointContainer['constants'];
 
@@ -177,7 +179,7 @@ class Creator
     private function getRepositoryCreator($language)
     {
         if (!array_key_exists($language, $this->languages)) {
-            throw new \RuntimeException('Language "' . $language . '" not found. Supported langauges are: ' . implode(', ', array_keys($this->languages)). '.');
+            throw new \RuntimeException('Language "' . $language . '" not found. Supported langauges are: ' . implode(', ', array_keys($this->languages)) . '.');
         }
         return $this->languages[$language];
     }
@@ -269,6 +271,11 @@ class Creator
             if (preg_match($routePathPattern, $path) && in_array($method, $route->getMethods())) {
 
                 $controllerSpec = $route->getDefault('_controller');
+
+                if (strpos($controllerSpec, '::') === false) {
+                    continue;
+                }
+
                 [$controllerName, $actionName] = explode('::', $controllerSpec);
 
                 return [

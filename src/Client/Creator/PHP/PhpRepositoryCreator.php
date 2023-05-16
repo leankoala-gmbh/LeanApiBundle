@@ -178,7 +178,7 @@ class PhpRepositoryCreator implements RepositoryCreator
             $resultType = $endpoint->getResultType();
 
             if (is_array($resultType)) {
-                $jsDocHeader .= $this->createTypeDefJsDoc('', $endpoint->getResultType(), $endpoint->getName());
+                // $jsDocHeader .= $this->createTypeDefJsDoc('', $endpoint->getResultType(), $endpoint->getName());
             } else {
 
             }
@@ -196,6 +196,9 @@ class PhpRepositoryCreator implements RepositoryCreator
         $typeDef = " * @typedef {Object} " . $prefix . "Result" . ucfirst($name) . "\n";
 
         foreach ($resultArray as $typeName => $resultElement) {
+            if (!is_array($resultElement)) {
+                throw new \RuntimeException('ResultElement is not an array. Name: ' . $name . ', type: ' . $typeName . ', value: ' . json_encode($resultElement) . '.');
+            }
             if (!array_key_exists(ParameterRule::DESCRIPTION, $resultElement)) {
                 $typeDef = $this->createTypeDefJsDoc($typeName, $resultElement, $prefix) . $typeDef;
                 $typeDef .= " * @property {" . $prefix . "Result" . ucfirst($typeName) . "} " . $typeName . "\n";

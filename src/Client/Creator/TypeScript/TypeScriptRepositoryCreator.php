@@ -64,7 +64,7 @@ class TypeScriptRepositoryCreator implements RepositoryCreator
 
         if (count($constants) > 0) {
 
-            $constantContent = $this->template->render(__DIR__ . '/Snippets/constants.ts.twig',
+            $constantContent = $this->template->render('TypeScript/Snippets/constants.ts.twig',
                 [
                     'repository' => $repositoryName,
                     'constants' => $constants
@@ -76,7 +76,7 @@ class TypeScriptRepositoryCreator implements RepositoryCreator
             $files[] = $constFilename;
         }
 
-        $classContent = $this->template->render(__DIR__ . '/Snippets/repository.ts.twig',
+        $classContent = $this->template->render('TypeScript/Snippets/repository.ts.twig',
             [
                 'repository' => $repositoryName,
                 'endpoints' => $endpoints,
@@ -120,7 +120,7 @@ class TypeScriptRepositoryCreator implements RepositoryCreator
             $repositoryClasses[] = $this->getClassName($repository, false);
         }
 
-        $classContent = $this->template->render(__DIR__ . '/Snippets/collection.ts.twig',
+        $classContent = $this->template->render('TypeScript/Snippets/collection.ts.twig',
             ['repositories' => $repositoryClasses]);
 
         $filename = $this->outputDirectory . 'RepositoryCollection.ts';
@@ -240,7 +240,7 @@ class TypeScriptRepositoryCreator implements RepositoryCreator
                 }
 
                 if (array_key_exists(ParameterRule::OPTIONS, $argumentDescription)) {
-                    $interfaceString .= '  ' . $argumentDescription[Endpoint::PARAMETER_FIELD_NAME] . $requiredString . ": '" . implode('\' | \'', $argumentDescription[ParameterRule::OPTIONS]  ) . "'\n";
+                    $interfaceString .= '  ' . $argumentDescription[Endpoint::PARAMETER_FIELD_NAME] . $requiredString . ": '" . implode('\' | \'', $argumentDescription[ParameterRule::OPTIONS]) . "'\n";
                 } else {
                     $interfaceString .= '  ' . $argumentDescription[Endpoint::PARAMETER_FIELD_NAME] . $requiredString . ": " . self::translateType($argumentDescription[ParameterRule::TYPE]) . "\n";
                 }
