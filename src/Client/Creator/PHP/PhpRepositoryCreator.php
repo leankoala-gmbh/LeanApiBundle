@@ -224,6 +224,8 @@ class PhpRepositoryCreator implements RepositoryCreator
                 $default = 'true';
             } else if ($default === false) {
                 $default = 'false';
+            } else if (is_array($default)) {
+                $default = '[' . implode(',', $default) . ']';
             }
             $options = 'default: ' . $default;
         } else if (!$parameter['required']) {
