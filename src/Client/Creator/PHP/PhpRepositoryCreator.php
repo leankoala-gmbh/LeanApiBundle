@@ -43,8 +43,8 @@ class PhpRepositoryCreator implements RepositoryCreator
         $typeDefs = "";
 
         foreach ($endpoints as $endpoint) {
-            $jsDocs[$endpoint->getName()] = $this->getPHPDoc($endpoint);
-            $typeDefs .= $this->getResultTypeDefinitionPHPDoc($endpoint);
+            $jsDocs[$endpoint->getName()] = $this->getJsDoc($endpoint);
+            $typeDefs .= $this->getResultTypeDefinitionJsDoc($endpoint);
         }
 
         $className = $this->getClassName($repositoryName);
@@ -79,7 +79,9 @@ class PhpRepositoryCreator implements RepositoryCreator
 
         $classContent = $this->template->render('PHP/Snippets/repository.php.twig', $context);
 
-        $classContent = str_replace('{List}', 'array', $classContent);
+        $classContent = str_replace('{Integer}', '{Number}', $classContent);
+        $classContent = str_replace('{Mixed}', '{*}', $classContent);
+        $classContent = str_replace('{List}', '{Array}', $classContent);
 
         $filename = $this->outputDirectory . 'Entities/' . $className . '.php';
 
@@ -129,7 +131,7 @@ class PhpRepositoryCreator implements RepositoryCreator
      * @param Endpoint $endpoint
      * @return string
      */
-    private function getPHPDoc(Endpoint $endpoint)
+    private function getJsDoc(Endpoint $endpoint)
     {
         $jsDoc = "  /**\n";
 
@@ -145,14 +147,14 @@ class PhpRepositoryCreator implements RepositoryCreator
         }
 
         foreach ($endpoint->getPathParameters() as $parameter) {
-            $jsDoc .= "   * @param $" . $parameter . "\n";
+            $jsDoc .= "   * @param " . $parameter . "\n";
         }
 
         $parameters = $endpoint->getParameters();
-        $jsDoc .= "   * @param array \$args\n";
+        $jsDoc .= "   * @param {Object} args\n";
         if (count($parameters) > 0) {
             foreach ($parameters as $parameter) {
-                $paramType = "@param " . ucfirst($parameter["type"]) . " args." . $parameter['name'] . ' ';
+                $paramType = "@param {" . ucfirst($parameter["type"]) . "} args." . $parameter['name'] . ' ';
                 $optional = $this->getOptionString($parameter);
                 $jsDoc .= $this->getIntendedDescription($parameter['description'], '   * ' . $paramType, strlen($paramType)) . $optional . "\n";
             }
@@ -169,7 +171,7 @@ class PhpRepositoryCreator implements RepositoryCreator
         return $jsDoc;
     }
 
-    private function getResultTypeDefinitionPHPDoc(Endpoint $endpoint)
+    private function getResultTypeDefinitionJsDoc(Endpoint $endpoint)
     {
         if ($endpoint->getResultType()) {
             $jsDocHeader = "/**\n";
@@ -223,11 +225,7 @@ class PhpRepositoryCreator implements RepositoryCreator
             } else if ($default === false) {
                 $default = 'false';
             }
-            if (is_array($default)) {
-                $options = 'default: ' . json_encode($default);
-            } else {
-                $options = 'default: ' . $default;
-            }
+            $options = 'default: ' . $default;
         } else if (!$parameter['required']) {
             $options = 'optional';
         }

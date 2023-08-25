@@ -3,15 +3,11 @@
 namespace Leankoala\LeanApiBundle\Command;
 
 use Leankoala\LeanApiBundle\Client\Creator;
-use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
 /**
  * Class CreateClientCommand
@@ -25,14 +21,6 @@ use Twig\Loader\FilesystemLoader;
  */
 class CreateClientCommand extends ContainerAwareCommand
 {
-    // private $container;
-
-    public function __construct(string $name = null)
-    {
-        parent::__construct($name);
-        // $this->container = $container;
-    }
-
     /**
      * @inheritDoc
      */
@@ -89,8 +77,5 @@ class CreateClientCommand extends ContainerAwareCommand
         }
 
         $output->writeln('');
-
-
-        return 0;
     }
 }

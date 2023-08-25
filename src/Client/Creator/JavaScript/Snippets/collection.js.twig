@@ -10,36 +10,23 @@
  */
 class RepositoryCollection {
 
-  constructor() {
-    this._masterConnection = false
-    this._clusterConnection = false
+  constructor(connection) {
 
     this._repositories = {}
+    {% for repository in repositories %}this._repositories[ '{{ repository | lower }}' ] = new {{ repository }}(connection)
+    {% endfor %}
 
-  {% for repository in repositories %}  this._repositories[ '{{ repository | lower }}' ] = new {{ repository }}()
-  {% endfor %}}
-
-  setClusterConnection(connection) {
-    this._clusterConnection = connection
-  }
-
-  setMasterConnection(connection) {
-    this._masterConnection = connection
   }
 
   getRepository(entityType) {
+
     const repositoryName = entityType.toLowerCase()
     if (this._repositories.hasOwnProperty(repositoryName)) {
-      const repo = this._repositories[repositoryName]
-      if (repo.getConnectionType() === 'ClusterConnection') {
-        repo.setConnection(this._clusterConnection)
-      } else {
-        repo.setConnection(this._masterConnection)
-      }
-      return this._repositories[repositoryName]
+      return this._repositories[ repositoryName ]
     } else {
       throw new Error('No repository with name ' + repositoryName + ' found. Registered repositories are: ' + JSON.stringify(Object.keys(this._repositories)))
     }
+
   }
 }
 

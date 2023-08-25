@@ -17,12 +17,12 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        if (method_exists(TreeBuilder::class, 'root')) {
-            $treeBuilder = new TreeBuilder();
-            $rootNode = $treeBuilder->root('leankoala_lean_api');
-        } else {
-            $treeBuilder = new TreeBuilder('leankoala_lean_api');
-        }
+        $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root('leankoala_lean_api');
+
+        // Here you should define the parameters that are allowed to
+        // configure your bundle. See the documentation linked above for
+        // more information on that topic.
 
         return $treeBuilder;
     }
