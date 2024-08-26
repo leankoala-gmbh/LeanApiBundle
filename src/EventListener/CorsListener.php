@@ -29,10 +29,13 @@ class CorsListener
     private $allowedHeaders = [
         'accept',
         'accept-encoding',
+        'Accept-Headers',
         'accept-language',
         'access-control-request-headers',
         'access-control-request-method',
+        'Authorization',
         'cache-control',
+        'content-type',
         'origin',
         'pragma',
         'referer',
@@ -40,9 +43,6 @@ class CorsListener
         'sec-fetch-mode',
         'sec-fetch-site',
         'user-agent',
-        'content-type',
-        'Accept-Headers',
-        'Authorization',
     ];
 
     /**
