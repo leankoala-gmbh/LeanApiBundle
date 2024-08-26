@@ -43,6 +43,8 @@ class CorsListener
         'sec-fetch-mode',
         'sec-fetch-site',
         'user-agent',
+        'X-App-Identifier',
+        'X-App-Version',
     ];
 
     /**
